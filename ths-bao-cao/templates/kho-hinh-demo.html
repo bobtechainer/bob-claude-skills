@@ -1,0 +1,2802 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Kho hình · bản catalogue của svg-kit.js</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  KHO HÌNH — BẢN CATALOGUE CỦA templates/svg-kit.js
+
+  Trang này là bảng mẫu để CHỌN hình, và để đối chiếu khi sửa svg-kit.js.
+  Nó KHÔNG BAO GIỜ là bản giao đi cho giáo viên. Bản báo cáo thật dựng từ
+  templates/bao-cao.html.
+
+  Vì sao tách ra thành file riêng: khi kho hình còn nằm trong bao-cao.html, nó
+  đứng đó kèm một dòng "xoá trước khi giao" — dưới sức ép thời gian thì dòng đó
+  bị bỏ qua, và nó còn làm mất tín hiệu thật: phần chữ mô tả biểu đồ ở đây làm
+  scripts/check_voice.py báo 2 lỗi chặn trên chính bản mẫu.
+
+  Trang này KHÔNG cần qua scripts/check_voice.py, và đó là chủ ý. Phép kiểm
+  giọng đo văn phong của một bản báo cáo gửi giáo viên: ba nhịp, không nói quá,
+  không phán về học sinh. Chữ ở đây là tài liệu kỹ thuật NÓI VỀ BIỂU ĐỒ — "một
+  lát trội hẳn", "quá trần 5 chuỗi", "dải xanh không dải cam" — nên đo nó bằng
+  thước đó là đo sai vật. Phép kiểm phải sạch là:
+      python scripts/check_sidecar.py templates/kho-hinh-demo.html
+
+  Mọi con số trên trang là SỐ MẪU. Không mục nào được đem sang bản báo cáo thật.
+-->
+<style>
+  /* ---------- Phông ----------
+     SFUIText và UTM-Mobifone-KT là phông riêng của MobiFone, chỉ giải qua local().
+     Máy nào không có thì rơi xuống Be Vietnam Pro — phông do người Việt thiết kế,
+     phủ đủ dấu; đó là lý do nó đứng thứ hai chứ không phải Inter. */
+  @font-face{font-family:'SFUIText';src:local('SFUIText'),local('SF UI Text'),local('SFUIText-Regular');font-weight:400 700;font-style:normal;font-display:swap}
+  @font-face{font-family:'UTM-Mobifone-KT';src:local('UTM-Mobifone-KT'),local('UTM Mobifone KT');font-weight:400 800;font-style:normal;font-display:swap}
+  @font-face{font-family:'Be Vietnam Pro';src:local('Be Vietnam Pro'),local('BeVietnamPro-Regular');font-weight:400 800;font-style:normal;font-display:swap}
+
+  :root{
+    /* --- Thương hiệu MobiFone (khớp tuyệt đối brand.css) --- */
+    --brand-25:#F6FAFE;  --brand-50:#EEF5FC;  --brand-100:#DDEBFA; --brand-200:#BED9F6;
+    --brand-300:#96C6F0; --brand-400:#70B0EA; --brand-500:#4A97E0; --brand-600:#237BD3;
+    --brand-700:#0060A6; --brand-800:#053A6B; --brand-900:#041F4A; --brand-950:#02122E;
+
+    /* --- Đỏ MobiFone: CHỈ cho cờ "cần hỗ trợ" / dưới ngưỡng. Không trang trí. --- */
+    --accent-red:#E30613; --accent-red-50:#FEEBEB;
+
+    /* --- Xám (dải Untitled UI cổ điển) --- */
+    --gray-25:#FCFCFD;  --gray-50:#F9FAFB;  --gray-100:#F2F4F7; --gray-200:#EAECF0;
+    --gray-300:#D0D5DD; --gray-400:#98A2B3; --gray-500:#667085; --gray-600:#475467;
+    --gray-700:#344054; --gray-800:#182230; --gray-900:#101828;
+
+    /* --- Trạng thái --- */
+    --success-50:#ECFDF3;  --success-100:#D1FADF; --success-500:#12B76A;
+    --success-600:#039855; --success-700:#027A48;
+    --warning-50:#FFF5E7;  --warning-100:#FFE9CC; --warning-500:#FFA23A;
+    --warning-600:#E88616; --warning-700:#BA670C;
+    --error-50:#FEF3F2;    --error-400:#F97066;   --error-500:#F04438;
+    --error-600:#D92D20;   --error-700:#B42318;
+
+    /* --- Mực và mặt phẳng --- */
+    --text-primary:#101828; --text-secondary:#475467; --text-tertiary:#667085;
+    --page:#F2F2F2;         /* nền trang MobiFone */
+    --card:#FFFFFF;         /* mặt thẻ — cũng là nền đã đo màu biểu đồ */
+
+    /* --- Đổ bóng --- */
+    --shadow-xs:0 1px 2px 0 rgba(10,13,18,.05);
+    --shadow-sm:0 1px 3px 0 rgba(10,13,18,.10),0 1px 2px -1px rgba(10,13,18,.10);
+    --shadow-lg:0 12px 16px -4px rgba(10,13,18,.08),0 4px 6px -2px rgba(10,13,18,.03);
+    --ring:0 0 0 4px rgba(35,123,211,.20);
+
+    /* --- Chữ --- */
+    --font:'SFUIText','Be Vietnam Pro','Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-display:'UTM-Mobifone-KT','Be Vietnam Pro',var(--font);
+
+    --move:cubic-bezier(.2,.7,.2,1);
+    --pop:cubic-bezier(.34,1.56,.64,1);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  /* Sơn màu nền và màu chữ tường minh, không để trống — kể cả khi chỉ có một chế độ. */
+  body{background:var(--page);color:var(--text-primary);font-family:var(--font);
+       font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  svg{display:block}
+  /* Chữ số đều cột CHỈ ở nơi số xếp thẳng hàng dọc: cột số trong bảng và nhãn trục.
+     Số lớn đứng một mình dùng chữ số tỉ lệ mặc định của phông — ở cỡ 30px, chữ số
+     đều bề rộng làm "121" trông rời rạc. */
+  .num{font-variant-numeric:tabular-nums}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  :focus-visible{outline:none;box-shadow:var(--ring);border-radius:8px}
+  button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+  code{font-family:ui-monospace,'Cascadia Mono','Consolas',monospace;font-size:.92em;
+       background:var(--gray-100);border-radius:4px;padding:1px 5px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  /* ---------- thanh trên ---------- */
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--gray-200)}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:18px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:var(--brand-900);
+    flex:0 1 auto;min-width:32px;white-space:nowrap;overflow:hidden}
+  .logo .txt{overflow:hidden;text-overflow:ellipsis}
+  .logo .mark{width:32px;height:32px;border-radius:9px;background:var(--brand-700);display:grid;place-items:center;flex:none}
+  .logo .mark svg{width:18px;height:18px}
+  .subnav{display:flex;gap:2px;flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;
+    /* Canh giua, NHUNG tu roi ve dau hang khi noi dung tran — neu de "center"
+       tron thi Chrome cat mat chu dau cua muc luc va no dinh vao logo. */
+    justify-content:center;justify-content:safe center}
+  .subnav::-webkit-scrollbar{display:none}
+  .subnav a{font-size:13.5px;color:var(--text-tertiary);text-decoration:none;padding:6px 9px;border-radius:8px;white-space:nowrap;transition:color .16s,background .16s}
+  .subnav a:hover{background:var(--gray-100);color:var(--text-primary)}
+  .subnav a.on{color:var(--brand-700);background:var(--brand-50);font-weight:600}
+  .topright{display:flex;align-items:center;gap:8px;flex:none}
+  .tbtn{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:500;color:var(--text-secondary);
+    border:1px solid var(--gray-200);border-radius:9px;padding:6px 12px;background:var(--card);
+    transition:border-color .16s,color .16s;white-space:nowrap}
+  .tbtn:hover{border-color:var(--brand-300);color:var(--brand-700)}
+  .tbtn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ---------- đầu trang ---------- */
+  .hero{background:linear-gradient(160deg,var(--brand-800) 0%,var(--brand-900) 55%,var(--brand-950) 100%);
+    color:#FFFFFF;padding:44px 0 96px;position:relative;overflow:hidden}
+  .hero .aur{position:absolute;border-radius:50%;filter:blur(70px);pointer-events:none;
+    animation:float 20s ease-in-out infinite alternate}
+  @keyframes float{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,-26px) scale(1.14)}}
+  .hero .wrap{position:relative;z-index:1}
+  .eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-300)}
+  .hero h1{font-size:32px;line-height:1.25;font-weight:800;letter-spacing:-.02em;margin:10px 0 6px;text-wrap:balance}
+  .hero .sub{color:var(--brand-200);font-size:15px;max-width:760px}
+
+  /* Khối đầu trang bắt buộc: phạm vi · khoảng theo TỪNG LOẠI dữ liệu · đã giả
+     định · lúc lấy số. Trang này là bản đóng băng, nên khoảng và giờ lấy số phải
+     nhìn thấy được, không nằm trong ghi chú kỹ thuật ở cuối. */
+  .hdr-block{margin-top:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+    border-radius:16px;padding:16px 18px}
+  .hdr-block dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:13.5px}
+  .hdr-block dt{color:var(--brand-300);font-weight:600;white-space:nowrap}
+  .hdr-block dd{color:#FFFFFF}
+  .hdr-block dd b{font-weight:600}
+  .win{display:flex;flex-wrap:wrap;gap:6px}
+  .win span{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);
+    border-radius:999px;padding:2px 10px;font-size:12.5px;white-space:nowrap}
+  .hdr-note{margin-top:12px;font-size:12.5px;color:var(--brand-200);border-top:1px dashed rgba(255,255,255,.18);padding-top:10px}
+
+  /* ---------- hàng chỉ số ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:-56px;position:relative;z-index:2}
+  .kpi{background:var(--card);border:1px solid var(--gray-200);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow-sm);
+    min-width:0;transition:transform .2s var(--move),box-shadow .2s var(--move)}
+  .kpi:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .kpi .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .kpi .icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
+  .kpi .icon svg{width:19px;height:19px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .kpi h3{font-size:13px;font-weight:500;color:var(--text-tertiary)}
+  /* Số chỉ số lớn: 30px / 800 — KHÔNG tabular-nums. */
+  .kpi .big{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-top:2px}
+  .kpi .big small{font-size:16px;font-weight:600;color:var(--gray-400)}
+  .kpi .delta{font-size:13px;font-weight:600;margin-top:4px}
+  /* .delta.up / .delta.down đã bỏ: ô chỉ số không phát tín hiệu tốt-xấu.
+     Xem chú thích trong statTile của svg-kit.js. */
+  .kpi .delta.flat{color:var(--text-tertiary);font-weight:500}
+  .kpi .note{font-size:13px;color:var(--text-secondary);margin-top:6px}
+  .spark{flex:none;max-width:64px}
+
+  /* ---------- mục ---------- */
+  section{margin-top:48px;scroll-margin-top:84px}
+  .sec-head{margin-bottom:16px;max-width:760px}
+  .sec-kicker{font-size:12.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--brand-600)}
+  .sec-head h2{font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:4px;text-wrap:balance}
+  .sec-head p{color:var(--text-secondary);margin-top:4px;font-size:14.5px}
+  .card{background:var(--card);border:1px solid var(--gray-200);border-radius:16px;box-shadow:var(--shadow-xs);padding:24px;min-width:0}
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .grid-32{display:grid;grid-template-columns:1.6fr minmax(0,1fr);gap:16px}
+  .chart-title{font-size:15px;font-weight:600}
+  .chart-sub{font-size:13px;color:var(--text-tertiary);margin-top:2px}
+  /* KHÔNG đặt chiều cao cố định cho khung biểu đồ. Lỗi có tên: khung vừa đúng
+     phần vẽ nhưng thiếu dải nhãn trục, nên thẻ mọc ra một thanh cuộn tí xíu bên
+     trong. viewBox của mỗi hình đã gồm cả dải nhãn, cứ để khung tự nở. */
+  .chart-box{position:relative;margin-top:14px;min-width:0}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:13px;color:var(--text-secondary)}
+  .legend b{color:var(--text-primary);font-weight:600}
+  .legend .lg-title{color:var(--text-tertiary);font-size:12.5px}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .tooltip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--gray-200);border-radius:10px;
+    box-shadow:var(--shadow-lg);padding:8px 12px;font-size:12.5px;color:var(--text-secondary);white-space:nowrap;
+    opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s;z-index:5}
+  .tooltip b{color:var(--text-primary)}
+  .tooltip.show{opacity:1;transform:translateY(0)}
+
+  /* Bảng song sinh — bản in mở nó ra, không gập lại. */
+  details.data-table{margin-top:14px;font-size:13px;color:var(--text-secondary)}
+  details.data-table summary{cursor:pointer;color:var(--brand-700);font-weight:500;width:max-content}
+  details.data-table table{border-collapse:collapse;margin-top:10px;width:100%}
+  details.data-table th,details.data-table td{border:1px solid var(--gray-200);padding:5px 10px;text-align:left}
+  details.data-table th{background:var(--gray-50);font-weight:600;color:var(--text-secondary);
+    font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  details.data-table td{font-size:13.5px}
+  .tbl-scroll{overflow-x:auto}
+  /* tableView dựng một <table> TRẦN, không mang lớp nào. Không có luật này thì
+     các cột dính vào nhau: bản thử đọc ra "070199019899chưa nộp". */
+  .tbl-scroll>table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
+  .tbl-scroll>table th{background:var(--gray-25);border-bottom:1px solid var(--gray-200);padding:10px 14px;
+    text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--text-tertiary);white-space:nowrap}
+  .tbl-scroll>table td{padding:10px 14px;border-bottom:1px solid var(--gray-100);
+    color:var(--text-secondary);vertical-align:middle}
+  .tbl-scroll>table tbody tr{transition:background .14s}
+  .tbl-scroll>table tbody tr:hover td{background:var(--brand-25)}
+  .tbl-scroll>table td.num,.tbl-scroll>table th.num{text-align:right}
+  .tbl-note{font-size:12.5px;color:var(--text-tertiary);margin-top:8px}
+
+  /* Doc nhanh — ban chu cua chinh nhung con so trong hinh. Tren giay khong co
+     chuot, nen moi gia tri phai nam tren mat giay. */
+  .readout{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:13px;color:var(--text-secondary);
+    background:var(--gray-25);border:1px solid var(--gray-200);border-radius:12px;padding:11px 14px}
+  .readout b{color:var(--text-primary);font-weight:700;font-variant-numeric:tabular-nums}
+  .callout{display:flex;gap:12px;border-radius:12px;padding:14px 16px;font-size:14px;margin-top:16px}
+  .callout svg{width:18px;height:18px;flex:none;margin-top:2px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .callout.warn{background:var(--warning-50);border:1px solid var(--warning-100);color:var(--warning-700)}
+  .callout.good{background:var(--success-50);border:1px solid var(--success-100);color:var(--success-700)}
+  .callout.info{background:var(--brand-50);border:1px solid var(--brand-100);color:var(--brand-800)}
+  .callout b{font-weight:600}
+
+  /* ---------- bảng cảnh báo dữ liệu ----------
+     Khi một chỉ số không qua được cửa chốt thì khối này THAY CHỖ biểu đồ.
+     Không đoán cơ chế: chỉ viết cái mà một trường trả về nói đúng như vậy. */
+  .dq-banner{border-radius:16px;padding:20px 22px;margin-top:16px;border:1px solid;break-inside:avoid}
+  .dq-chan{background:var(--accent-red-50);border-color:var(--error-400);color:var(--error-700)}
+  .dq-canh{background:var(--warning-50);border-color:var(--warning-100);color:var(--warning-700)}
+  .dq-tin{background:var(--brand-50);border-color:var(--brand-100);color:var(--brand-800)}
+  .dq-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .dq-tag{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+    background:var(--card);border-radius:999px;padding:3px 11px;flex:none}
+  .dq-head h3{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .dq-body{margin-top:10px;font-size:14px;color:var(--text-secondary)}
+  .dq-raw{margin-top:14px;background:var(--card);border:1px solid var(--gray-200);border-radius:12px;padding:14px 16px}
+  .dq-raw-t{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-tertiary);margin-bottom:8px}
+  .dq-raw dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 20px}
+  .dq-raw dt{font-size:12.5px;color:var(--text-tertiary)}
+  .dq-raw dd{font-size:19px;font-weight:700;color:var(--text-primary);letter-spacing:-.01em}
+  .dq-src,.dq-note,.dq-ask{margin-top:10px;font-size:12.5px;color:var(--text-secondary)}
+  .dq-ask{font-weight:600;color:var(--text-primary)}
+
+  /* ---------- ô chưa có dữ liệu ----------
+     Trạng thái hạng nhất, không phải thông báo lỗi. Một trang mà sáu mục đều ghi
+     chưa có dữ liệu là một bản báo cáo hợp lệ. */
+  .nodata{display:flex;gap:16px;background:var(--gray-50);border:1px solid var(--gray-200);
+    border-radius:16px;padding:20px 22px;margin-top:16px;break-inside:avoid}
+  .nd-icon{width:40px;height:40px;border-radius:10px;background:var(--card);border:1px solid var(--gray-200);
+    display:grid;place-items:center;flex:none}
+  .nd-icon svg{width:21px;height:21px}
+  .nd-body{min-width:0}
+  .nd-title{font-size:15px;font-weight:600;color:var(--text-primary)}
+  .nd-reason{font-size:13.5px;color:var(--text-secondary);margin-top:5px}
+  .nd-raw{margin-top:10px;padding-left:18px;font-size:13.5px;color:var(--text-secondary)}
+  .nd-raw b{color:var(--text-primary);font-weight:600}
+  .nd-src,.nd-note{margin-top:10px;font-size:12.5px;color:var(--text-tertiary)}
+
+  /* ---------- số lớn, nhiều ô nhỏ ---------- */
+  .hero-figure{text-align:center;padding:8px 0 4px}
+  .hf-num{font-size:56px;line-height:1.05;font-weight:800;letter-spacing:-.02em;color:var(--brand-800);font-family:var(--font)}
+  .hf-num small{font-size:22px;font-weight:600;color:var(--gray-400)}
+  .hf-lbl{font-size:15px;color:var(--text-secondary);margin-top:6px}
+  .hf-note{font-size:12.5px;color:var(--text-tertiary);margin-top:4px}
+  .small-multiples{display:grid;gap:16px;margin-top:14px}
+  .sm-cell{border:1px solid var(--gray-200);border-radius:12px;padding:14px;min-width:0;break-inside:avoid}
+
+  /* ---------- bảng từng em ---------- */
+  .tablehead{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:0 20px 14px}
+  .filterchip{display:none;align-items:center;gap:9px;background:var(--brand-50);border:1px solid var(--brand-200);
+    color:var(--brand-800);border-radius:999px;padding:5px 8px 5px 14px;font-size:13px;font-weight:500}
+  .filterchip.show{display:inline-flex;animation:pop .3s var(--pop)}
+  @keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+  .filterchip button{width:20px;height:20px;border-radius:99px;display:grid;place-items:center;background:var(--brand-100);transition:background .16s}
+  .filterchip button:hover{background:var(--brand-200)}
+  .filterchip button svg{width:10px;height:10px;stroke:var(--brand-800);stroke-width:3;fill:none;stroke-linecap:round}
+  table.students{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.students th{border-bottom:1px solid var(--gray-200);background:var(--gray-25);padding:0;text-align:left}
+  table.students th button{display:flex;align-items:center;gap:5px;width:100%;padding:10px 12px;font-size:12px;font-weight:600;
+    color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;transition:color .16s}
+  table.students th button:hover{color:var(--text-primary)}
+  table.students th .arr{opacity:0;transition:opacity .16s,transform .2s var(--move);width:11px;height:11px;
+    stroke:var(--brand-600);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  table.students th[aria-sort] button{color:var(--brand-700)}
+  table.students th[aria-sort] .arr{opacity:1}
+  table.students th[aria-sort="descending"] .arr{transform:rotate(180deg)}
+  table.students td{padding:11px 12px;border-bottom:1px solid var(--gray-100);color:var(--text-secondary);vertical-align:middle}
+  table.students tbody tr{transition:background .14s}
+  table.students tbody tr:hover td{background:var(--brand-25)}
+  .st{display:flex;align-items:center;gap:10px;color:var(--text-primary);font-weight:600}
+  .st .code{display:block;font-weight:400;font-size:12px;color:var(--text-tertiary);letter-spacing:.02em}
+  .avatar{width:32px;height:32px;border-radius:99px;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none;
+    background:var(--brand-50);color:var(--brand-700)}
+  .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:500;white-space:nowrap}
+  .badge .d{width:6px;height:6px;border-radius:99px;flex:none}
+  /* Màu trạng thái không bao giờ là kênh duy nhất — mỗi nhãn đều mang CHỮ. */
+  .b-dat{background:var(--success-50);color:var(--success-700)}      .b-dat .d{background:var(--success-600)}
+  .b-theodoi{background:var(--warning-50);color:var(--warning-700)}  .b-theodoi .d{background:var(--warning-600)}
+  .b-hotro{background:var(--accent-red-50);color:var(--error-700)}   .b-hotro .d{background:var(--accent-red)}
+  .b-chuaco{background:var(--gray-50);color:var(--gray-600)}         .b-chuaco .d{background:var(--gray-400)}
+  .emptyrow td{padding:34px 12px;text-align:center;color:var(--text-tertiary)}
+
+  /* ---------- số liệu lấy từ đâu ---------- */
+  .srcs{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+  .srcs th{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-tertiary);
+    text-align:left;background:var(--gray-50);border:1px solid var(--gray-200);padding:8px 10px}
+  .srcs td{border:1px solid var(--gray-200);padding:8px 10px;color:var(--text-secondary);vertical-align:top}
+  .srcs td code{white-space:nowrap}
+  .caps{margin-top:16px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:12px;padding:14px 16px}
+  .caps h3{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-tertiary)}
+  .caps ul{margin:8px 0 0 18px;font-size:13.5px;color:var(--text-secondary)}
+  .caps li{margin-top:5px}
+  .caps q{font-style:normal;color:var(--text-primary)}
+  .self-calc{margin-top:14px;font-size:13.5px;color:var(--text-secondary);
+    background:var(--brand-50);border:1px solid var(--brand-100);border-radius:12px;padding:12px 14px}
+
+  footer{margin:56px 0 40px;color:var(--text-tertiary);font-size:13px}
+  .hint{font-size:12.5px;color:var(--text-tertiary);display:inline-flex;align-items:center;gap:6px}
+  .hint svg{width:13px;height:13px;stroke:var(--gray-400);fill:none;stroke-width:2;stroke-linecap:round;flex:none}
+
+  /* LƯỚI AN TOÀN, KHÔNG PHẢI HIỆU ỨNG.
+     .reveal nằm ở opacity 0 và chỉ có script mới gắn .in để mở ra. Script ném
+     một ngoại lệ giữa chừng là phần còn lại của trang TRẮNG trên màn hình —
+     mà bản in vẫn đúng vì @media print ép opacity 1, nên lỗi này đi lọt.
+     Hoạt ảnh dưới đây mở mọi thẻ sau 2,5 giây, không cần script. Người đọc
+     vẫn thấy hiệu ứng cuộn ở phần đầu trang, còn phần dưới thì chắc chắn hiện.
+     Một bản báo cáo không được phép trắng. */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s var(--move);
+    animation:ths-luoi-an-toan 1ms linear 2.5s forwards}
+  .reveal.in{opacity:1;transform:none;animation:none}
+  @keyframes ths-luoi-an-toan{to{opacity:1;transform:none}}
+
+  /* ---------- máy xin giảm chuyển động ---------- */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+    .reveal{opacity:1!important;transform:none!important}
+    .ths-grow{transform:scaleY(1)!important}
+    .ths-grow-x{transform:scaleX(1)!important}
+    .ths-draw{stroke-dasharray:none!important;stroke-dashoffset:0!important}
+    .hero .aur{animation:none}
+    html{scroll-behavior:auto}
+  }
+
+  /* ---------- IN GIẤY ----------
+     Đây là bối cảnh CHÍNH của trang, không phải bối cảnh phụ. */
+  @page{ size:A4; margin:14mm }
+  @media print{
+    html,body{background:#FFFFFF}
+    body{font-size:11.5pt;line-height:1.45}
+    .wrap{max-width:none;padding:0}
+
+    /* LUẬT IN QUAN TRỌNG NHẤT — mọi thứ phải hiện đủ.
+       Thẻ chưa cuộn tới vẫn đang ở opacity 0 và cột vẫn đang ở scaleY(0);
+       không mở hết ra thì thẻ dưới màn hình in ra là một ô trắng. */
+    .reveal{opacity:1!important;transform:none!important}
+    .ths-grow{transform:scaleY(1)!important}
+    .ths-grow-x{transform:scaleX(1)!important}
+    .ths-draw{stroke-dasharray:none!important;stroke-dashoffset:0!important}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+
+    /* Bảng song sinh IN RA, không gập lại. CSS một mình không mở được <details>
+       nên script còn gọi THSViz.chuanBiIn() ở sự kiện beforeprint. */
+    details.data-table{display:block!important;margin-top:10px}
+    /* Trình duyệt mới ẩn ruột <details> bằng content-visibility trên
+       ::details-content, nên mở thêm bằng CSS ở đây. Trình duyệt cũ bỏ qua dòng
+       này, và script vẫn gắn thuộc tính open — hai đường cho cùng một việc. */
+    details.data-table::details-content{content-visibility:visible!important;block-size:auto!important}
+    details.data-table summary{list-style:none;color:var(--text-tertiary);font-size:10pt;font-weight:600;cursor:default}
+    details.data-table summary::-webkit-details-marker{display:none}
+    details.data-table table{font-size:9.5pt}
+    .tbl-scroll{overflow:visible!important}
+
+    /* Bật VÂN — kênh danh tính khi màu thất bại. Chỉ 45° và bản gương 135°. */
+    .ths-van-1{fill:url(#ths-van-a)!important}
+    .ths-van-2{fill:url(#ths-van-b)!important}
+    .sw.ths-van-1,.sw.ths-van-2{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.55) 0 2px,transparent 2px 4px)}
+    .sw.ths-van-2{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 2px,transparent 2px 4px)}
+
+    /* Bỏ hết chrome tương tác. */
+    .topbar,.subnav,.tbtn,.tooltip,.filterchip,.hint,
+    table.students th .arr{display:none!important}
+    table.students th button{padding-left:0;cursor:default}
+
+    /* Giữ khối đầu trang và bảng nguồn số liệu — hai thứ này là bản chất của
+       một bản đóng băng, không phải trang trí. */
+    .hero{background:#FFFFFF!important;color:var(--text-primary);padding:0 0 10px;border-bottom:2px solid var(--gray-300)}
+    .hero .aur{display:none}
+    .hero h1{font-size:22px}
+    .hero .sub{color:var(--text-secondary)}
+    .eyebrow{color:var(--text-tertiary)}
+    .hdr-block{background:var(--gray-50);border-color:var(--gray-200);margin-top:12px;border-radius:8px}
+    .hdr-block dt{color:var(--text-tertiary)}
+    .hdr-block dd{color:var(--text-primary)}
+    .win span{background:#FFFFFF;border-color:var(--gray-300);color:var(--text-secondary)}
+    .hdr-note{color:var(--text-secondary);border-top-color:var(--gray-200)}
+
+    .kpis{margin-top:14px;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .kpi{padding:12px 14px}
+    .kpi .big{font-size:22px}
+    .card,.kpi,.dq-banner,.nodata,.sm-cell{box-shadow:none!important}
+    .card,.kpi,.dq-banner,.nodata,.sm-cell,section,.srcs tr,.chart-box{break-inside:avoid;page-break-inside:avoid}
+    section{margin-top:18px}
+    .sec-head h2{font-size:16pt}
+    #nguon{break-before:page;page-break-before:always}
+    footer{margin:18px 0 0}
+  }
+
+  /* ---------- điểm ngắt ---------- */
+  /* Dai 1200–1360px la dai chat nhat: muc luc van hien ma hai nut van day chu.
+     Thu gon nut ve bieu tuong truoc, de muc luc con cho. */
+  @media (max-width:1360px){ .tbtn .lbl{display:none} .tbtn{padding:7px 9px} }
+  @media (max-width:1200px){ .subnav{display:none} }
+  @media (max-width:1000px){
+    .tbtn{display:none}
+    .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid-2,.grid-32,.small-multiples{grid-template-columns:minmax(0,1fr)!important}
+    .hero h1{font-size:25px}
+    .hdr-block dl{grid-template-columns:1fr;gap:2px 0}
+    .hdr-block dt{margin-top:8px}
+  }
+  @media (max-width:760px){
+    .badge .txt-long{display:none}
+    .hf-num{font-size:44px}
+  }
+
+  /* ---------- chế độ màu cưỡng bức ---------- */
+  @media (forced-colors: active){
+    .ths-van-1{fill:url(#ths-van-a)}
+    .ths-van-2{fill:url(#ths-van-b)}
+    .card,.kpi,.dq-banner,.nodata{border:1px solid CanvasText}
+  }
+</style>
+<style>
+  /* ---------- kiểu dáng riêng của trang catalogue ---------- */
+  .gallery-warn{display:flex;gap:12px;align-items:flex-start;background:var(--warning-50);
+    border:1px dashed var(--warning-500);border-radius:12px;padding:14px 16px;font-size:13.5px;color:var(--warning-700)}
+  .gallery-warn svg{width:18px;height:18px;flex:none;margin-top:2px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .cat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .cat-grid.one{grid-template-columns:minmax(0,1fr)}
+  .cat{background:var(--card);border:1px solid var(--gray-200);border-radius:16px;box-shadow:var(--shadow-xs);padding:20px 22px;min-width:0}
+  .cat-fn{display:inline-block;font-family:ui-monospace,'Cascadia Mono','Consolas',monospace;font-size:12.5px;font-weight:600;
+    background:var(--brand-50);color:var(--brand-700);border:1px solid var(--brand-100);border-radius:999px;padding:2px 11px}
+  .cat h3{font-size:15px;font-weight:600;margin-top:9px}
+  .cat .when{font-size:13px;color:var(--text-secondary);margin-top:5px}
+  .cat .when b{color:var(--text-primary);font-weight:600}
+  .cat .box{margin-top:14px;min-width:0}
+  .cat-kicker{font-size:12.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--brand-600);
+    margin:40px 0 12px;padding-top:20px;border-top:1px solid var(--gray-200)}
+  .cat-kicker:first-of-type{margin-top:8px;border-top:0;padding-top:0}
+  @media (max-width:1000px){ .cat-grid{grid-template-columns:minmax(0,1fr)} }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="logo">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4.5l9 5-9 5-9-5Z"/><path d="M6.5 12.2v4.1c0 .5.3.9.8 1.1L12 19.5l4.7-2.1c.5-.2.8-.6.8-1.1v-4.1"/></svg></span>
+      <span class="txt">Kho hình · Trường học số</span>
+    </div>
+    <nav class="subnav" aria-label="Mục lục kho hình">
+      <a href="#dangso">Dạng số</a>
+      <a href="#sosanh">So sánh</a>
+      <a href="#xuhuong">Xu hướng</a>
+      <a href="#phantrentong">Phần trên tổng</a>
+      <a href="#lechphanbo">Lệch và phân bố</a>
+      <a href="#nen">Nền</a>
+    </nav>
+    <div class="topright">
+      <button class="tbtn" id="btnPrint" type="button">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M8 14h8v7H8z"/></svg>
+        <span class="lbl">In / Lưu PDF</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="aur" style="width:420px;height:300px;background:rgba(74,151,224,.30);top:-120px;right:6%"></div>
+  <div class="aur" style="width:340px;height:260px;background:rgba(35,123,211,.24);bottom:-140px;left:-4%;animation-delay:-9s"></div>
+  <div class="wrap">
+    <div class="eyebrow reveal">Bản catalogue · dùng để chọn hình</div>
+    <h1 class="reveal" style="transition-delay:.06s">Kho hình của trang báo cáo — một ví dụ sống cho từng hàm</h1>
+    <div class="sub reveal" style="transition-delay:.1s">
+      Mỗi thẻ dưới đây là một lần đọc thật của <code style="background:rgba(255,255,255,.12);color:#FFFFFF">templates/svg-kit.js</code>,
+      kèm tên hàm và câu “dùng khi nào” lấy từ <code style="background:rgba(255,255,255,.12);color:#FFFFFF">references/03-kho-bieu-do.md</code>.
+      Số trên trang là số mẫu, không phải số của lớp nào.
+    </div>
+  </div>
+</div>
+
+<main class="wrap" style="padding-bottom:8px">
+
+  <div class="gallery-warn reveal" style="margin-top:-56px;position:relative;z-index:2;background:var(--card);border-style:solid;border-color:var(--warning-100)">
+    <svg viewBox="0 0 24 24" stroke="var(--warning-600)"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>
+    <div>Trang này là bản catalogue, không bao giờ là bản giao đi.
+      Nó tồn tại để chọn hình và để đối chiếu khi sửa <code>svg-kit.js</code>. Bản báo cáo thật dựng từ
+      <code>templates/bao-cao.html</code>, và một trang giao đi chỉ có 3 đến 6 biểu đồ — ô chỉ số, thanh mức và
+      đồng hồ cung không tính là biểu đồ.</div>
+  </div>
+
+  <!-- ============ DẠNG SỐ ============ -->
+  <section id="dangso">
+    <div class="cat-kicker">Dạng số — không phải biểu đồ</div>
+    <div class="cat-grid one">
+      <div class="cat reveal">
+        <span class="cat-fn">kpiRow(o)</span>
+        <h3>Hàng chỉ số</h3>
+        <p class="when">Dùng khi: <b>4 đến 6 ô, không hơn.</b> Đây là hình mở đầu mọi bản báo cáo. Mỗi ô một delta, và delta nói rõ so với kỳ nào.</p>
+        <div class="box" id="catKpiRow"></div>
+      </div>
+    </div>
+    <div class="cat-grid" style="margin-top:16px">
+      <div class="cat reveal">
+        <span class="cat-fn">statTile(o)</span>
+        <h3>Ô chỉ số</h3>
+        <p class="when">Dùng khi: <b>một con số hiện tại</b>, có thể kèm xu hướng. Nhãn viết thường, giá trị dùng chữ số tỉ lệ, kèm đường nhỏ. Không dùng biểu đồ cột một cột cho việc này.</p>
+        <div class="box" id="catStatTile" data-fig="cat-kpi"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">heroFigure(o)</span>
+        <h3>Số lớn</h3>
+        <p class="when">Dùng khi: con số <b>mở đầu cả trang</b>. Từ 48px, cùng phông sans với cả trang, và đúng một cái mỗi trang.</p>
+        <div class="box" id="catHero"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">meter(o)</span>
+        <h3>Thanh mức</h3>
+        <p class="when">Dùng khi: <b>một tỉ lệ so với một mức</b>. Phần đầy mang mức độ, rãnh là bước nhạt của cùng dải màu. Đây là hình thay cho vành tròn hai lát.</p>
+        <div class="box" id="catMeter" data-fig="cat-tile"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">gauge(o)</span>
+        <h3>Đồng hồ cung</h3>
+        <p class="when">Dùng khi: một chỉ số cần đọc <b>như một mặt đồng hồ</b>. Cung 270°, dựng bằng mẹo <code>pathLength=100</code>. Ngoài trường hợp đó thì thanh mức gọn hơn.</p>
+        <div class="box" id="catGauge"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">sparkline(o)</span>
+        <h3>Đường nhỏ</h3>
+        <p class="when">Dùng khi: cần <b>hình dạng xu hướng bên trong ô chỉ số</b>. 12 điểm, không trục, không nhãn — nó chỉ nói hình dạng.</p>
+        <div class="box" id="catSpark" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SO SÁNH ============ -->
+  <section id="sosanh">
+    <div class="cat-kicker">So sánh</div>
+    <div class="cat-grid">
+      <div class="cat reveal">
+        <span class="cat-fn">bars(o)</span>
+        <h3>Cột ngang</h3>
+        <p class="when">Dùng khi: <b>tên hạng dài</b> — tên môn, tên nhiệm vụ, tên học sinh. Đây là hình chủ lực của báo cáo trường học. Nhãn số đứng ở một cột cố định bên trái, thanh bắt đầu ở một toạ độ cố định.</p>
+        <div class="box" id="catBars" data-fig="cat-bars"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">barsEmphasis(o)</span>
+        <h3>Làm nổi</h3>
+        <p class="when">Dùng khi: câu chuyện là <b>một mục</b>. Một thanh xanh, còn lại xám. Hình bị dùng ít nhất, và thường là câu trả lời đúng cho “làm biểu đồ này dễ đọc hơn”.</p>
+        <div class="box" id="catEmph" data-fig="cat-noibat"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">columns(o)</span>
+        <h3>Cột dọc</h3>
+        <p class="when">Dùng khi: hạng là <b>thời gian hoặc tên ngắn</b>. Mỗi dải có một ô bắt chuột trong suốt cao hết khung, để cột thấp vẫn bấm được.</p>
+        <div class="box" id="catColumns" data-fig="cat-cotdoc"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">dotPlot(o)</span>
+        <h3>Biểu đồ điểm</h3>
+        <p class="when">Dùng khi: phải <b>so nhiều lớp</b>. Mỗi mục một điểm trên cùng một thang; thấy ngay mục nào tách khỏi nhóm, và nó chịu được nhiều mục hơn cột ngang. Đây cũng là hình thay cho radar.</p>
+        <div class="box" id="catDot" data-fig="cat-diem"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">dumbbell(o)</span>
+        <h3>Quả tạ</h3>
+        <p class="when">Dùng khi: <b>trước → sau theo từng mục</b>, ví dụ tuần này so tuần trước theo lớp. Một màu, hai độ đậm.</p>
+        <div class="box" id="catDumb" data-fig="cat-truocsau"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">bullet(o)</span>
+        <h3>Thanh mục tiêu</h3>
+        <p class="when">Dùng khi: giá trị so với một vạch mục tiêu, ví dụ trung bình lớp so với ngưỡng đạt. Cùng với cột ngang, đây là một trong hai hình đọc được tốt nhất.</p>
+        <div class="box" id="catBullet" data-fig="cat-muctieu"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ XU HƯỚNG ============ -->
+  <section id="xuhuong">
+    <div class="cat-kicker">Xu hướng</div>
+    <div class="cat-grid">
+      <div class="cat reveal">
+        <span class="cat-fn">lineChart(o)</span>
+        <h3>Đường</h3>
+        <p class="when">Dùng khi: <b>1 đến 3 chuỗi theo thời gian</b>. Dưới 4 điểm thì đừng vẽ đường — dùng ô chỉ số. Nhãn số chỉ đặt ở điểm cuối và hai giá trị cực.</p>
+        <div class="box" id="catLine" data-fig="cat-duong"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">areaChart(o)</span>
+        <h3>Vùng</h3>
+        <p class="when">Dùng khi: <b>đúng một chuỗi</b> theo thời gian. Nền là màu chuỗi ở 10% mờ — một lớp rửa, không phải khối đặc.</p>
+        <div class="box" id="catArea" data-fig="cat-vung"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PHẦN TRÊN TỔNG ============ -->
+  <section id="phantrentong">
+    <div class="cat-kicker">Phần trên tổng</div>
+    <div class="cat-grid">
+      <div class="cat reveal">
+        <span class="cat-fn">stackedBar(o)</span>
+        <h3>Cột xếp lớp</h3>
+        <p class="when">Dùng khi: <b>phần trên tổng</b> — đây là hình mặc định cho việc đó. Tên lớp, tên môn và tên nhiệm vụ đều dài, nên với dữ liệu trường học hình này thường nằm ngang. Các đoạn cách nhau khe nền 2px.</p>
+        <div class="box" id="catStack" data-fig="cat-xeplop"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">donut(o)</span>
+        <h3>Vành tròn</h3>
+        <p class="when">Dùng khi: phần trên tổng cần đọc <b>trong một cái nhìn</b>, tối đa 6 lát, và một lát trội hẳn. Không dùng để so các giá trị gần nhau — mắt người không so được góc. Có lát nào gần nhau thì đổi sang cột ngang.</p>
+        <div class="box" id="catDonut" style="display:flex;justify-content:center"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">divergingStacked(o)</span>
+        <h3>Cột xếp lớp hai chiều</h3>
+        <p class="when">Dùng khi: thang <b>có thứ tự</b> và muốn thấy cả hai phía của mức giữa, ví dụ “chưa mở ← đang làm → đã nộp”. Căn giữa ở mức trung tính.</p>
+        <div class="box" id="catDivStack" data-fig="cat-haichieu-xep"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LỆCH VÀ PHÂN BỐ ============ -->
+  <section id="lechphanbo">
+    <div class="cat-kicker">Lệch và phân bố</div>
+    <div class="cat-grid">
+      <div class="cat reveal">
+        <span class="cat-fn">divergingBar(o)</span>
+        <h3>Cột hai chiều</h3>
+        <p class="when">Dùng khi: <b>trên/dưới một ngưỡng</b>, hoặc lệch so với mục tiêu. Xanh một phía, đỏ phía kia, vạch không màu xám trung tính.</p>
+        <div class="box" id="catDiv" data-fig="cat-chenh"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">histogram(o)</span>
+        <h3>Cột tần số</h3>
+        <p class="when">Dùng khi: <b>phổ điểm</b>. Chỉ dựng khi đã quét đủ sổ lớp — hệ thống không có công cụ trả phổ điểm. Khoảng điểm là thang thứ tự nên dùng dải xanh, không dùng bốn màu.</p>
+        <div class="box" id="catHist" data-fig="cat-phodiem"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">heatmap(o)</span>
+        <h3>Bản đồ nhiệt</h3>
+        <p class="when">Dùng khi: <b>lưới hai chiều</b> — lớp × tuần, khối × môn. Dải xanh, không dải cam: mọi dải cam MobiFone đã đo đều trượt phép đầu sáng. Ô trống có hẳn một dòng chú giải nói là chưa có dữ liệu.</p>
+        <div class="box" id="catHeat" data-fig="cat-luoi"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NỀN ============ -->
+  <section id="nen">
+    <div class="cat-kicker">Nền — bố cục, cảnh báo, trạng thái rỗng</div>
+    <div class="cat-grid one">
+      <div class="cat reveal">
+        <span class="cat-fn">banner(o)</span>
+        <h3>Bảng cảnh báo dữ liệu</h3>
+        <p class="when">Dùng khi: một chỉ số <b>không qua được cửa chốt</b>. Khối này thay chỗ biểu đồ và hiện số thô làm bằng. Khác hẳn trạng thái rỗng: ở đây có số, nhưng số đó chưa tin được.</p>
+        <div class="box" id="catBanner"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">emptyState(o)</span>
+        <h3>Ô chưa có dữ liệu</h3>
+        <p class="when">Dùng khi: mục đó <b>chưa có dữ liệu trong khoảng đã đọc</b>. Đây là trạng thái hạng nhất, không phải thông báo lỗi — một trang có sáu mục đều ghi chưa có dữ liệu vẫn là một bản báo cáo hợp lệ.</p>
+        <div class="box" id="catEmpty"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">tableView(o)</span>
+        <h3>Bảng</h3>
+        <p class="when">Dùng khi: <b>quá 7 hạng đều mang nghĩa</b>, hoặc cần bản song sinh đứng riêng. Mọi biểu đồ đều đã tự kèm một bảng gập trong thẻ <code>details</code>; hàm này là bản không gập, có khung cuộn ngang.</p>
+        <div class="box" id="catTable" data-fig="cat-bang"></div>
+      </div>
+      <div class="cat reveal">
+        <span class="cat-fn">smallMultiples(o)</span>
+        <h3>Nhiều ô nhỏ</h3>
+        <p class="when">Dùng khi: <b>quá trần 5 chuỗi</b>. Đây là một cách bố cục trên các hình ở trên, không phải một hình riêng: mỗi chuỗi một khung con, cùng một thang, một màu.</p>
+        <div class="box" id="catSmall" data-fig="cat-onho"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Bản catalogue của <code>templates/svg-kit.js</code>. Số trên trang là số mẫu, không lấy từ lớp nào.</div>
+    <div style="margin-top:6px">Sửa <code>svg-kit.js</code> thì mở lại trang này để xem từng hàm còn vẽ đúng không, rồi dán bản mới vào cả hai file HTML.</div>
+  </footer>
+</main>
+
+<!--
+  ======================= KHỐI JSON ĐỒNG HÀNH (SỐ MẪU) =======================
+  Trang catalogue vẫn giữ khối này, vì hai lý do: nó là ví dụ cho người dựng
+  trang thật xem khối đồng hành trông thế nào, và nó giữ cho mọi số trên trang
+  có một chỗ khai báo, đúng như bản báo cáo thật.
+
+  Khác một chỗ: mọi giá trị ở đây là SỐ MẪU. Trường `soMau: true` nói rõ điều
+  đó ở từng mục, và không mục nào được đem sang bản báo cáo thật.
+-->
+<script type="application/json" id="thsSidecar">
+{
+  "loai": "danh-muc",
+  "docTao": "2026-09-07T16:20:00+07:00",
+  "docTaoHien": "07/09/2026, 16:20",
+  "tenBaoCao": "Kho hình · bản catalogue",
+  "laBanCatalogue": true,
+  "phamVi": {
+    "loai": "khong-phai-bao-cao",
+    "ten": "bản catalogue của svg-kit.js",
+    "ghiChu": "Trang này không nói về lớp nào. Mọi số là số mẫu dựng cho đủ hình."
+  },
+  "giaDinh": [
+    "mọi con số trên trang này là số mẫu, không đọc từ hệ thống Trường học số",
+    "khoảng ghi kèm mỗi mục là khoảng của lần đọc đã dựng nên số mẫu đó trong một phiên thử"
+  ],
+  "cuaSoTheoLoai": [
+    { "loai": "nhiệm vụ", "cuaSo": "2026-08-01..2026-09-07", "hien": "01/08–07/09", "congCu": "get_class_mission_summary" },
+    { "loai": "kiểm tra", "cuaSo": "2026-06-10..2026-09-07", "hien": "10/06–07/09", "congCu": "get_class_exam_summary" }
+  ],
+  "soLieu": {
+    "cat-kpi": {
+      "mauSo": "trong 22 em của một sổ lớp mẫu — số minh hoạ, không phải số thật",
+      "nhom": "Dạng số", "moTa": "Số em đã nộp nhiệm vụ", "giaTri": 1, "hienThi": "1", "donVi": "em", "soMau": true,
+      "congCu": "get_class_mission_summary", "truong": "submitted", "cuaSo": "2026-08-01..2026-09-07" },
+    "cat-tile": {
+      "mauSo": "trên một lớp mẫu 22 em — số minh hoạ, không phải số thật",
+      "nhom": "Dạng số", "moTa": "Tỉ lệ nộp nhiệm vụ", "giaTri": 4.5, "hienThi": "4,5%", "donVi": "%", "soMau": true,
+      "congCu": "get_class_mission_summary", "truong": "submitted/student_count", "cuaSo": "2026-08-01..2026-09-07", "tuTinh": true },
+    "cat-bars": {
+      "mauSo": "trên một lớp mẫu 22 em — số minh hoạ, không phải số thật",
+      "nhom": "So sánh", "moTa": "Tỉ lệ nộp của ba lớp bộ môn", "giaTri": [29.2, 26.7, 4.5],
+      "hienThi": "29,2 · 26,7 · 4,5", "donVi": "%", "soMau": true,
+      "congCu": "get_class_mission_summary", "truong": "submitted/student_count theo từng class_id",
+      "cuaSo": "2026-08-01..2026-09-07", "tuTinh": true },
+    "cat-noibat": {
+      "mauSo": "trên một lớp mẫu 22 em — số minh hoạ, không phải số thật",
+      "nhom": "So sánh", "moTa": "Tỉ lệ nộp bốn lớp, làm nổi một lớp", "giaTri": [29.2, 26.7, 18.4, 4.5],
+      "hienThi": "29,2 · 26,7 · 18,4 · 4,5", "donVi": "%", "soMau": true,
+      "congCu": "get_class_mission_summary", "truong": "submitted/student_count theo từng class_id",
+      "cuaSo": "2026-08-01..2026-09-07", "tuTinh": true },
+    "cat-cotdoc": {
+      "nhom": "So sánh", "moTa": "Số lượt nộp theo sáu phòng thi", "giaTri": [22, 18, 14, 9, 6, 3],
+      "hienThi": "22 · 18 · 14 · 9 · 6 · 3", "donVi": "lượt nộp", "soMau": true,
+      "congCu": "get_class_exam_summary", "truong": "submissions", "cuaSo": "2026-06-10..2026-09-07" },
+    "cat-diem": {
+      "mauSo": "trên một lớp mẫu 22 em — số minh hoạ, không phải số thật",
+      "nhom": "So sánh", "moTa": "Trung bình bốn lớp trên cùng một thang", "giaTri": [55.8, 47.2, 43.1, 41.3],
+      "hienThi": "55,8 · 47,2 · 43,1 · 41,3", "donVi": "%", "soMau": true,
+      "congCu": "get_class_exam_summary", "truong": "average_percent theo từng class_id", "cuaSo": "2026-06-10..2026-09-07" },
+    "cat-truocsau": {
+      "mauSo": "trên một lớp mẫu 22 em — số minh hoạ, không phải số thật",
+      "nhom": "So sánh", "moTa": "Trung bình tháng 8 so với tháng 9, theo ba lớp",
+      "giaTri": [[38.2, 41.3], [52.0, 55.8], [44.5, 43.1]], "hienThi": "3 lớp, trước → sau", "donVi": "%", "soMau": true,
+      "congCu": "get_class_exam_summary", "truong": "average_percent trên hai khoảng", "cuaSo": "2026-06-10..2026-09-07", "tuTinh": true },
+    "cat-muctieu": {
+      "mauSo": "trên một lớp mẫu 22 em — số minh hoạ, không phải số thật",
+      "nhom": "So sánh", "moTa": "Trung bình lớp so với mốc đối chiếu", "giaTri": 41.3, "hienThi": "41,3%", "donVi": "%", "soMau": true,
+      "congCu": "get_class_exam_summary", "truong": "average_percent", "cuaSo": "2026-06-10..2026-09-07" },
+    "cat-duong": {
+      "mauSo": "trên một lớp mẫu 22 em — số minh hoạ, không phải số thật",
+      "nhom": "Xu hướng", "moTa": "Trung bình theo tuần của hai lớp",
+      "giaTri": [[33.1, 36.4, 35.0, 39.8, 41.3], [48.0, 47.2, 50.5, 53.1, 55.8]],
+      "hienThi": "2 lớp × 5 tuần", "donVi": "%", "soMau": true,
+      "congCu": "get_class_exam_summary", "truong": "average_percent, một lần đọc cho mỗi tuần",
+      "cuaSo": "2026-08-03..2026-09-06", "tuTinh": true },
+    "cat-vung": {
+      "nhom": "Xu hướng", "moTa": "Lượt nộp bài theo tuần", "giaTri": [4, 9, 7, 15, 22],
+      "hienThi": "4 · 9 · 7 · 15 · 22", "donVi": "lượt nộp", "soMau": true,
+      "congCu": "get_class_exam_summary", "truong": "submissions theo từng tuần", "cuaSo": "2026-08-03..2026-09-06", "tuTinh": true },
+    "cat-xeplop": {
+      "mauSo": "trong 22 em của một sổ lớp mẫu — số minh hoạ, không phải số thật",
+      "nhom": "Phần trên tổng", "moTa": "Mức nhiệm vụ của 22 em", "giaTri": [0, 21, 1],
+      "hienThi": "0 · 21 · 1", "donVi": "em", "soMau": true,
+      "congCu": "get_class_mission_summary", "truong": "started, pending, submitted", "cuaSo": "2026-08-01..2026-09-07" },
+    "cat-haichieu-xep": {
+      "mauSo": "trong 22 em của một sổ lớp mẫu — số minh hoạ, không phải số thật",
+      "nhom": "Phần trên tổng", "moTa": "Mức nhiệm vụ của ba lớp", "giaTri": [[0, 21, 1], [3, 8, 4], [4, 30, 14]],
+      "hienThi": "3 lớp × 3 mức", "donVi": "em", "soMau": true,
+      "congCu": "get_class_mission_summary", "truong": "started, pending, submitted theo từng class_id",
+      "cuaSo": "2026-08-01..2026-09-07", "tuTinh": true },
+    "cat-chenh": {
+      "mauSo": "trên một lớp mẫu 22 em — số minh hoạ, không phải số thật",
+      "nhom": "Lệch và phân bố", "moTa": "Chênh lệch tỉ lệ nộp so với tuần trước", "giaTri": [2.4, -3.1, 0, 5.6],
+      "hienThi": "+2,4 · -3,1 · 0 · +5,6", "donVi": "điểm %", "soMau": true,
+      "congCu": "get_class_mission_summary", "truong": "submitted/student_count, tuần này trừ tuần liền trước",
+      "cuaSo": "2026-08-24..2026-09-06", "tuTinh": true },
+    "cat-phodiem": {
+      "mauSo": "trong 22 em của một sổ lớp mẫu — số minh hoạ, không phải số thật",
+      "nhom": "Lệch và phân bố", "moTa": "Phổ điểm theo bốn khoảng", "giaTri": [3, 7, 9, 3],
+      "hienThi": "3 · 7 · 9 · 3", "donVi": "em", "soMau": true,
+      "congCu": "get_student_exam_scores", "truong": "percent, skill tự chia khoảng", "cuaSo": "2026-06-10..2026-09-07", "tuTinh": true },
+    "cat-luoi": {
+      "nhom": "Lệch và phân bố", "moTa": "Lượt nộp theo lớp và theo tuần",
+      "giaTri": [[3, 5, 2, 1], [11, 9, null, 14], [7, 6, 8, null]],
+      "hienThi": "3 lớp × 4 tuần, 2 ô chưa có dữ liệu", "donVi": "lượt nộp", "soMau": true,
+      "congCu": "get_class_exam_summary", "truong": "submissions, một lần đọc cho mỗi lớp mỗi tuần",
+      "cuaSo": "2026-08-10..2026-09-06", "tuTinh": true },
+    "cat-bang": {
+      "mauSo": "trong các nhiệm vụ của một lớp mẫu — số minh hoạ, không phải số thật",
+      "nhom": "Nền", "moTa": "Bốn dòng nhiệm vụ dạng bảng", "giaTri": 4, "hienThi": "4 dòng", "donVi": "nhiệm vụ", "soMau": true,
+      "congCu": "get_class_mission_summary", "truong": "title, deadline, submitted, pending", "cuaSo": "2026-08-01..2026-09-07" },
+    "cat-onho": {
+      "mauSo": "trên một lớp mẫu 22 em — số minh hoạ, không phải số thật",
+      "nhom": "Nền", "moTa": "Trung bình theo tuần của hai lớp, mỗi lớp một khung",
+      "giaTri": [[33.1, 36.4, 35.0, 39.8, 41.3], [48.0, 47.2, 50.5, 53.1, 55.8]],
+      "hienThi": "2 khung × 5 tuần", "donVi": "%", "soMau": true,
+      "congCu": "get_class_exam_summary", "truong": "average_percent, một lần đọc cho mỗi tuần",
+      "cuaSo": "2026-08-03..2026-09-06", "tuTinh": true }
+  },
+  "gioiHan": [
+    { "congCu": "get_class_exam_summary", "note": "Chỉ hiển thị 30 bài gần nhất; hãy thu hẹp khoảng ngày.", "doDai": 30, "tran": 30 }
+  ],
+  "chuaDungDuoc": []
+}
+</script>
+
+<script>
+/* ============================================================================
+ * PHẦN 1 · THSViz — dán nguyên templates/svg-kit.js vào đây.
+ * Bản trong file này phải khớp từng byte với bản trong templates/bao-cao.html
+ * và với templates/svg-kit.js. Sửa một chỗ thì dán lại cả ba.
+ * ========================================================================== */
+/*!
+ * THSViz — kho hình vẽ SVG cho trang báo cáo Trường học số.
+ *
+ * Không phụ thuộc thư viện nào, không module, không bước dựng. Nạp bằng một thẻ
+ * script là dùng được, và dán thẳng vào trang một-file cũng được.
+ *
+ * Sáu luật của cả file — vi phạm luật nào là hình đó sai:
+ *
+ *  1. Mọi mã màu ở đây đã đo bằng scripts/validate_palette.js. Không thêm màu.
+ *
+ *  2. Danh mục hay thứ tự. Đảo thứ tự các hạng mà KHÔNG đổi nghĩa (tên lớp, tên
+ *     môn, tên học sinh) thì là DANH MỤC: mọi cột cùng một màu #237BD3, không có
+ *     khung chú giải. Đảo mà ĐỔI nghĩa (khoảng điểm, khối 6→12, mức nhiệm vụ)
+ *     thì là THỨ TỰ: dải xanh 4 bước. Tô cột càng lớn càng đậm trên hạng danh
+ *     mục là mã hoá kép chiều dài đã nói rồi — nên bars/columns mặc định MỘT màu.
+ *
+ *  3. Chữ số đều cột chỉ ở nơi số xếp thẳng hàng DỌC: cột số trong bảng, nhãn
+ *     trục, cột giá trị của cột ngang. KHÔNG gắn cho số lớn đứng một mình, số
+ *     giữa vành tròn, số của đồng hồ cung — ở cỡ 30px thì "121" trông rời rạc.
+ *
+ *  4. Chữ không bao giờ mang màu dữ liệu. Dấu mang màu chuỗi; nhãn, giá trị,
+ *     chú giải, chữ trục dùng mực chữ. Ngoại lệ duy nhất: nhãn nằm TRONG một
+ *     vùng đã tô, khi đó chọn trắng hay mực theo độ sáng của vùng.
+ *
+ *  5. In giấy là bối cảnh CHÍNH. Trên giấy không có chuột, nên mọi giá trị phải
+ *     nằm trên mặt giấy: nhãn trực tiếp hoặc bảng song sinh, bắt buộc. Bảng song
+ *     sinh in ra (mở details), không gập lại. Vân bật trong bản in.
+ *
+ *  6. Không có new Date() / Date.now() trong file này. Mốc thời gian do người
+ *     gọi truyền vào — trang báo cáo là bản đóng băng, thời gian phải là số
+ *     liệu, không phải giờ của cái máy đang mở trang.
+ *
+ * Viết theo ES5: không arrow, không template literal, không let/const, không
+ * Object.assign — để chạy được cả trên WebView cũ của bảng tương tác trong lớp.
+ */
+(function (global) {
+  "use strict";
+
+  /* =========================================================================
+   * 0 · MÀU — chép nguyên từ references/04-mau-va-chu.md
+   * ========================================================================= */
+
+  var MAU = {
+    /* Thương hiệu MobiFone */
+    brand25: '#F6FAFE', brand50: '#EEF5FC', brand100: '#DDEBFA', brand200: '#BED9F6',
+    brand300: '#96C6F0', brand400: '#70B0EA', brand500: '#4A97E0', brand600: '#237BD3',
+    brand700: '#0060A6', brand800: '#053A6B', brand900: '#041F4A', brand950: '#02122E',
+
+    /* Đỏ thương hiệu — CHỈ cho cờ "cần hỗ trợ" / dưới ngưỡng. Không trang trí. */
+    doThuongHieu: '#E30613', doThuongHieuNhat: '#FEEBEB',
+
+    /* Xám (dải Untitled UI cổ điển — mục 6 của tài liệu màu nói vì sao dải này) */
+    gray25: '#FCFCFD', gray50: '#F9FAFB', gray100: '#F2F4F7', gray200: '#EAECF0',
+    gray300: '#D0D5DD', gray400: '#98A2B3', gray500: '#667085', gray600: '#475467',
+    gray700: '#344054', gray800: '#182230', gray900: '#101828',
+
+    /* Trạng thái */
+    luc50: '#ECFDF3', luc100: '#D1FADF', luc500: '#12B76A', luc600: '#039855', luc700: '#027A48',
+    cam50: '#FFF5E7', cam100: '#FFE9CC', cam500: '#FFA23A', cam600: '#E88616', cam700: '#BA670C',
+    loi50: '#FEF3F2', loi400: '#F97066', loi500: '#F04438', loi600: '#D92D20', loi700: '#B42318',
+
+    /* Hai slot cuối của thang phân loại */
+    tim600: '#7839EE', hong600: '#DD2590',
+
+    /* Mực và mặt phẳng */
+    trang: '#FFFFFF', nenTrang: '#F2F2F2',
+    mucChinh: '#101828', mucPhu: '#475467', mucNhat: '#667085',
+
+    /* Khung và mực của biểu đồ (mục 2.6) */
+    luoi: '#EAECF0',         /* lưới mảnh, NÉT LIỀN — không bao giờ gạch đứt */
+    truc: '#D0D5DD',         /* trục và đường gốc */
+    nhanTruc: '#98A2B3',     /* nhãn trục, 11px */
+    nhanGiaiDoan: '#667085', /* nhãn giai đoạn, 11px/600 */
+    daiXen: '#F9FAFB',       /* dải xen kẽ */
+    soTrenDau: '#101828',    /* nhãn số trên dấu, 13px/700 */
+    tang: '#027A48',         /* delta tăng-tốt — chỉ dùng cho ô chỉ số, không cho nhãn trong hình */
+    giam: '#B42318',         /* delta giảm-xấu — cùng luật trên */
+    oTrong: '#F2F4F7',       /* ô heatmap chưa có dữ liệu */
+    boiCanh: '#D0D5DD'       /* phần bị đẩy về bối cảnh khi làm nổi */
+  };
+
+  /* Thang phân loại — thứ tự CỐ ĐỊNH, cấp phát tuần tự từ slot 1.
+   * Chỉ dùng khi các chuỗi ĐÚNG LÀ chủ đề (ba loại tương tác trong một tiết).
+   * Không đảo, không nhảy slot, không thêm slot thứ 6: đã đo, slot 6 làm sập
+   * phép mù màu (hồng lẫn teal ΔE 1,8). */
+  var CHUOI = [MAU.brand600, MAU.luc500, MAU.cam600, MAU.tim600, MAU.hong600];
+
+  /* Thang đơn sắc / thứ tự — bốn bước, dải xanh. Đây là dải DUY NHẤT đạt phép.
+   * Mọi dải cam đều trượt đầu sáng, nên heatmap và phổ điểm dùng dải này. */
+  var THANG = [MAU.brand400, MAU.brand500, MAU.brand600, MAU.brand800];
+
+  /* Thang hai chiều — nóng/lạnh, GIỮA LÀ XÁM trung tính, hai bên bằng số bước.
+   * Không xanh↔lục: cùng lạnh, điểm giữa không đọc ra "không có gì". */
+  var HAI_CHIEU = { duoi: [MAU.loi700, MAU.loi600], giua: MAU.gray200, tren: [MAU.brand500, MAU.brand600] };
+
+  /* Bộ trạng thái — cố định, và KHÔNG BAO GIỜ được là kênh duy nhất.
+   * Đã đo: cam↔lục lệch ΔE 5,9 với người mù màu đỏ, và #98A2B3 bị coi là vô sắc.
+   * Cả hai không sửa được bằng cách chọn màu khác, nên "luôn kèm chữ" không phải
+   * lời khuyên — nó là thứ duy nhất giữ cho bộ này đọc được. */
+  var TRANG_THAI = {
+    dat:     { mau: MAU.luc600,        nen: MAU.luc50,            chu: 'đạt' },
+    theoDoi: { mau: MAU.cam600,        nen: MAU.cam50,            chu: 'cần theo dõi' },
+    hoTro:   { mau: MAU.doThuongHieu,  nen: MAU.doThuongHieuNhat, chu: 'cần hỗ trợ' },
+    chuaCo:  { mau: MAU.gray400,       nen: MAU.gray50,           chu: 'chưa có dữ liệu' }
+  };
+
+  /* =========================================================================
+   * 1 · HÌNH HỌC — cổng nguyên từ ths-course-builder/src/lib/svg.ts
+   * Cổng đủ cả những hàm bên đó chưa dùng, vì trang báo cáo dùng tới.
+   * ========================================================================= */
+
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  function range(n) {
+    var out = [];
+    for (var i = 0; i < n; i++) out.push(i);
+    return out;
+  }
+
+  function sum(xs) {
+    var t = 0;
+    for (var i = 0; i < xs.length; i++) t += xs[i];
+    return t;
+  }
+
+  /* Làm tròn 2 chữ số — giữ chuỗi path ngắn, đỡ phình file. */
+  function round(n) { return Math.round(n * 100) / 100; }
+
+  /* Đưa một giá trị từ miền dữ liệu sang miền pixel. */
+  function scaleLinear(d0, d1, r0, r1) {
+    var dd = (d1 - d0) || 1;
+    return function (v) { return r0 + ((v - d0) / dd) * (r1 - r0); };
+  }
+
+  function rad(deg) { return (deg * Math.PI) / 180; }
+
+  /* Điểm trên đường tròn. 0° là 3 giờ, góc tăng theo chiều kim đồng hồ (SVG y xuống). */
+  function polar(cx, cy, r, deg) {
+    return { x: cx + r * Math.cos(rad(deg)), y: cy + r * Math.sin(rad(deg)) };
+  }
+
+  /* Đường cung giữa hai góc (độ). */
+  function arcPath(cx, cy, r, startDeg, endDeg) {
+    var s = polar(cx, cy, r, startDeg);
+    var e = polar(cx, cy, r, endDeg);
+    var large = Math.abs(endDeg - startDeg) > 180 ? 1 : 0;
+    var sweep = endDeg > startDeg ? 1 : 0;
+    return 'M ' + round(s.x) + ' ' + round(s.y) + ' A ' + r + ' ' + r + ' 0 ' + large + ' ' + sweep + ' ' + round(e.x) + ' ' + round(e.y);
+  }
+
+  function linePath(pts) {
+    var d = '';
+    for (var i = 0; i < pts.length; i++) d += (i ? ' L ' : 'M ') + round(pts[i].x) + ' ' + round(pts[i].y);
+    return d;
+  }
+
+  /* Catmull-Rom → bezier bậc ba, cho đường xu hướng mềm mắt. */
+  function smoothPath(pts) {
+    if (pts.length < 3) return linePath(pts);
+    var d = 'M ' + round(pts[0].x) + ' ' + round(pts[0].y);
+    for (var i = 0; i < pts.length - 1; i++) {
+      var p0 = pts[i - 1] || pts[i];
+      var p1 = pts[i];
+      var p2 = pts[i + 1];
+      var p3 = pts[i + 2] || p2;
+      var c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
+      var c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+      d += ' C ' + round(c1x) + ' ' + round(c1y) + ' ' + round(c2x) + ' ' + round(c2y) + ' ' + round(p2.x) + ' ' + round(p2.y);
+    }
+    return d;
+  }
+
+  function areaPath(pts, baseY, smooth) {
+    if (!pts.length) return '';
+    var top = (smooth === false) ? linePath(pts) : smoothPath(pts);
+    var first = pts[0], last = pts[pts.length - 1];
+    return top + ' L ' + round(last.x) + ' ' + round(baseY) + ' L ' + round(first.x) + ' ' + round(baseY) + ' Z';
+  }
+
+  /* Kéo một max thô lên mốc trục dễ đọc. */
+  function niceMax(v) {
+    if (v <= 0) return 1;
+    var exp = Math.floor(Math.log(v) / Math.LN10);
+    var base = Math.pow(10, exp);
+    var n = v / base;
+    var nice = n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10;
+    return nice * base;
+  }
+
+  function ticks(max, count) {
+    if (count == null) count = 4;
+    var out = [];
+    for (var i = 0; i <= count; i++) out.push(round((max / count) * i));
+    return out;
+  }
+
+  function polygonPoints(pts) {
+    var out = [];
+    for (var i = 0; i < pts.length; i++) out.push(round(pts[i].x) + ',' + round(pts[i].y));
+    return out.join(' ');
+  }
+
+  /* =========================================================================
+   * 2 · SỐ VÀ CHỮ THEO LỐI VIỆT
+   * Dấu phẩy cho thập phân, dấu chấm cho hàng nghìn, gạch dài — cho chỗ thiếu.
+   * Viết tay, không Intl: WebView cũ có bản Intl không đủ locale vi.
+   * ========================================================================= */
+
+  function soVN(n, le) {
+    if (arguments.length < 2) le = 2;
+    if (n === null || n === undefined || n !== n) return '—';
+    var am = n < 0, tuyet = Math.abs(n);
+    var lam = (le === null) ? tuyet : Number(tuyet.toFixed(le));
+    var phan = String(lam).split('.');
+    var nhom = phan[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return (am ? '-' : '') + nhom + (phan[1] ? ',' + phan[1] : '');
+  }
+
+  function diem(n, le) { return soVN(n, arguments.length < 2 ? 2 : le); }   /* 7.86 → "7,86" */
+  function nguyen(n) { return soVN(n, 0); }                                 /* 1234 → "1.234" */
+
+  function tiLe(r, le) {                                                    /* tỉ lệ 0–1 → "%" */
+    if (r === null || r === undefined || r !== r) return '—';
+    return soVN(r * 100, arguments.length < 2 ? 1 : le) + '%';
+  }
+
+  /* Nhiều trường của Trường học số đã ở dạng phần trăm sẵn (tỉ lệ vắng,
+   * average_percent, attendance_rate_percent). Đừng nhân 100 lần nữa. */
+  function tiLePhan(p, le) {
+    if (p === null || p === undefined || p !== p) return '—';
+    return soVN(p, arguments.length < 2 ? 1 : le) + '%';
+  }
+
+  /* Sắp tên người PHẢI truyền locale. Thiếu 'vi' là tên Việt sắp sai —
+   * lỗi này đang có thật trong RosterTable.tsx. */
+  function soSanhVN(a, b) {
+    var x = (a === null || a === undefined) ? '' : String(a);
+    var y = (b === null || b === undefined) ? '' : String(b);
+    return x.localeCompare(y, 'vi');
+  }
+  function sapTheoTen(ds, khoa, chieu) {
+    var k = khoa || 'name', d = (chieu === -1) ? -1 : 1;
+    return ds.slice().sort(function (a, b) { return soSanhVN(a[k], b[k]) * d; });
+  }
+
+  /* Định dạng mặc định cho nhãn trục: số nguyên thì bỏ phần thập phân. */
+  function fmtTruc(v) { return soVN(v, (v % 1 === 0) ? 0 : 1); }
+
+  /* =========================================================================
+   * 3 · VỤN DÙNG CHUNG
+   * ========================================================================= */
+
+  function esc(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  /* Bộ đếm cục bộ cho id (clipPath...). Không dùng Date.now(). */
+  var demId = 0;
+  function idMoi(tien) { demId += 1; return (tien || 'ths') + '-' + demId; }
+
+  function gop(mac, them) {
+    var out = {}, k;
+    for (k in mac) if (mac.hasOwnProperty(k)) out[k] = mac[k];
+    if (them) for (k in them) if (them.hasOwnProperty(k) && them[k] !== undefined) out[k] = them[k];
+    return out;
+  }
+
+  /* Nét mảnh: 1px ở khổ 2× phải vẫn là 1px. Codebase cũ không có chỗ nào dùng
+   * vector-effect, nên biểu đồ co giãn ra là nét "1px" dày lên 5px.
+   * KHÔNG gắn cho nét mà BỀ DÀY CHÍNH LÀ SỐ LIỆU — vành tròn, đồng hồ cung,
+   * thanh xếp lớp: khoá bề dày theo pixel màn hình là làm méo hình. */
+  var NET = ' vector-effect="non-scaling-stroke"';
+
+  /* Vành nền 2px trên điểm và điểm cuối. Đây là cơ chế phân cách được phép;
+   * "vẽ viền quanh một dấu để phân cách" thì không. */
+  var VANH = ' stroke="' + MAU.trang + '" stroke-width="2"';
+
+  /**
+   * Vân in — kênh danh tính khi màu thất bại (in đen trắng, forced-colors, mù
+   * màu nặng). Chỉ hai góc: 45° và bản gương 135°. Ngang và dọc bị cấm vì đọc
+   * thành lưới hoặc thành cột.
+   *
+   * Vân ghim theo SLOT chứ không theo phần tử: slot 1 (xanh) để trơn, slot 2
+   * (lục) 45°, slot 3 (cam) 135° — đúng cặp mà phép đo chỉ ra là lẫn nhau khi
+   * chuyển sang xám (lục 0,36 / cam 0,35). Tông trên tông, cùng độ ồn.
+   * Từ 4 chuỗi trở lên vân hết chỗ phân biệt, và đó là một lý do nữa để tách
+   * thành nhiều ô nhỏ thay vì thêm chuỗi.
+   * Không gắn vân cho thang thứ tự: dải xanh 4 bước in ra đã thành 4 mức xám.
+   * Gọi vanDefs() ĐÚNG MỘT LẦN trong trang; CSS bản in trỏ vào hai id này.
+   */
+  function vanDefs() {
+    function mot(id, goc, nen) {
+      return '<pattern id="' + id + '" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(' + goc + ')">' +
+        '<rect width="8" height="8" fill="' + nen + '"/>' +
+        '<line x1="0" y1="0" x2="0" y2="8" stroke="' + MAU.trang + '" stroke-width="2.6" stroke-opacity=".55"/>' +
+        '</pattern>';
+    }
+    return '<svg class="ths-van-defs" aria-hidden="true" focusable="false" width="0" height="0" ' +
+      'style="position:absolute;width:0;height:0;overflow:hidden"><defs>' +
+      mot('ths-van-a', 45, CHUOI[1]) + mot('ths-van-b', 135, CHUOI[2]) +
+      '</defs></svg>';
+  }
+
+  /* Lớp vân theo slot, chỉ gắn cho hình NHIỀU CHUỖI. Hình một chuỗi không cần. */
+  function lopVan(slot, nhieuChuoi) {
+    if (!nhieuChuoi) return '';
+    if (slot === 1) return ' ths-van-1';
+    if (slot === 2) return ' ths-van-2';
+    return '';
+  }
+
+  /* Khung <svg> chuẩn: viewBox + co giãn theo bề rộng thẻ + role/aria-label.
+   * Mọi biểu đồ đi qua đây, nên không có hình nào lọt lưới thiếu aria.
+   * Chiều cao của viewBox luôn gồm CẢ dải nhãn trục — khung cao cố định vừa
+   * đúng phần vẽ là lỗi có tên: cái thẻ mọc ra thanh cuộn tí xíu bên trong. */
+  function khungSvg(o, w, h, trong, lopThem, capBeRong) {
+    var style = 'width:100%;height:auto' + (capBeRong ? (';max-width:' + capBeRong + 'px') : '');
+    return '<svg class="ths-chart' + (lopThem ? ' ' + lopThem : '') + '" viewBox="0 0 ' + round(w) + ' ' + round(h) + '"' +
+      ' style="' + style + '" role="img" aria-label="' + esc(o.ariaLabel || o.title || 'Biểu đồ') + '"' +
+      (o.id ? ' id="' + esc(o.id) + '"' : '') + '>' + trong + '</svg>';
+  }
+
+  /* Bảng số liệu — bản song sinh của MỌI biểu đồ, không phải tuỳ chọn.
+   * Lục #12B76A và cam #E88616 đều dưới 3:1 trên nền trắng; cảnh báo tương phản
+   * không được bỏ qua, nên bảng này là kênh đọc thứ hai bắt buộc. Trên giấy nó
+   * còn là chỗ duy nhất đọc được giá trị mà nhãn trực tiếp không mang. */
+  function bang(o) {
+    var cols = o.cols || [], rows = o.rows || [], i, j, s;
+    s = '<table>';
+    if (o.caption) s += '<caption class="sr">' + esc(o.caption) + '</caption>';
+    s += '<thead><tr>';
+    for (i = 0; i < cols.length; i++) s += '<th scope="col">' + esc(cols[i].label) + '</th>';
+    s += '</tr></thead><tbody>';
+    for (i = 0; i < rows.length; i++) {
+      s += '<tr>';
+      for (j = 0; j < cols.length; j++) {
+        var v = rows[i][cols[j].key];
+        if (v === null || v === undefined || v === '') v = '—';
+        /* class="num" ở đây là đúng chỗ: cột số trong bảng xếp thẳng hàng dọc. */
+        s += '<td' + (cols[j].num ? ' class="num"' : '') + '>' + esc(v) + '</td>';
+      }
+      s += '</tr>';
+    }
+    return s + '</tbody></table>';
+  }
+
+  function boBang(o) {
+    return '<details class="data-table"><summary>' + esc(o.summary || 'Xem dạng bảng số liệu') + '</summary>' +
+      bang(o) + '</details>';
+  }
+
+  /** tableView — bảng đứng riêng (không gập), có khung cuộn ngang cho bảng rộng. */
+  function tableView(o) {
+    var s = '<div class="tbl-scroll">' + bang(o) + '</div>';
+    if (o.note) s += '<p class="tbl-note">' + esc(o.note) + '</p>';
+    return s;
+  }
+
+  /* Gắn bảng song sinh vào sau biểu đồ, trừ khi người gọi tự dựng bảng riêng. */
+  function kemBang(svg, o, cfg) {
+    if (o.bang === false) return svg;
+    return svg + boBang({ cols: cfg.cols, rows: cfg.rows, caption: o.ariaLabel || o.title || '', summary: o.summaryBang });
+  }
+
+  /* Chú giải: từ HAI chuỗi trở lên thì luôn có. MỘT chuỗi thì không — một khung
+   * có đúng một ô màu là nhắc lại tiêu đề và tốn chỗ. Chữ trong chú giải dùng
+   * mực chữ, danh tính đến từ ô màu CẠNH chữ. */
+  function chuGiai(items, nhieuChuoi) {
+    if (!items || items.length < 2 || nhieuChuoi === false) return '';
+    var s = '<div class="legend">', i;
+    for (i = 0; i < items.length; i++) {
+      s += '<span><span class="sw' + lopVan(i, true) + '" style="background:' + items[i].mau + '"></span>' +
+        esc(items[i].label) + (items[i].value !== undefined ? ' <b>' + esc(items[i].value) + '</b>' : '') + '</span>';
+    }
+    return s + '</div>';
+  }
+
+  /* Thanh ngang: bo 4px ở ĐẦU SỐ LIỆU, vuông ở chân. Bo cả hai đầu là mắt đọc
+   * ra "viên thuốc" và mất cảm giác đo từ gốc. */
+  function thanhNgang(x, y, w, h, r) {
+    if (w <= 0.5) return '';
+    r = Math.min(r === undefined ? 4 : r, w, h / 2);
+    if (w <= r) return 'M' + round(x) + ' ' + round(y) + 'H' + round(x + w) + 'V' + round(y + h) + 'H' + round(x) + 'Z';
+    return 'M' + round(x) + ' ' + round(y) +
+      'H' + round(x + w - r) + 'A' + r + ' ' + r + ' 0 0 1 ' + round(x + w) + ' ' + round(y + r) +
+      'V' + round(y + h - r) + 'A' + r + ' ' + r + ' 0 0 1 ' + round(x + w - r) + ' ' + round(y + h) +
+      'H' + round(x) + 'Z';
+  }
+
+  /* Cột dọc mọc LÊN: bo ở nắp (đầu dữ liệu), vuông ở chân trục. */
+  function cotDoc(x, y, w, h, r) {
+    if (h <= 0.5) return '';
+    r = Math.min(r === undefined ? 4 : r, w / 2, h);
+    return 'M' + round(x) + ' ' + round(y + h) +
+      'V' + round(y + r) + 'A' + r + ' ' + r + ' 0 0 1 ' + round(x + r) + ' ' + round(y) +
+      'H' + round(x + w - r) + 'A' + r + ' ' + r + ' 0 0 1 ' + round(x + w) + ' ' + round(y + r) +
+      'V' + round(y + h) + 'Z';
+  }
+
+  /* Cột mọc XUỐNG (nhánh âm của cột hai chiều): bo ở đáy, vuông ở đường 0. */
+  function cotDocXuong(x, y, w, h, r) {
+    if (h <= 0.5) return '';
+    r = Math.min(r === undefined ? 4 : r, w / 2, h);
+    return 'M' + round(x) + ' ' + round(y) +
+      'V' + round(y + h - r) + 'A' + r + ' ' + r + ' 0 0 0 ' + round(x + r) + ' ' + round(y + h) +
+      'H' + round(x + w - r) + 'A' + r + ' ' + r + ' 0 0 0 ' + round(x + w) + ' ' + round(y + h - r) +
+      'V' + round(y) + 'Z';
+  }
+
+  /* Trần bề dày dấu — chặn cứng ở 24px, phần thừa của dải là khoảng thở. */
+  var DAY_TOI_DA = 24;
+  function beDay(dai, tiLeDai, tran) {
+    return Math.min(tran === undefined ? DAY_TOI_DA : tran, dai * (tiLeDai === undefined ? 0.62 : tiLeDai));
+  }
+
+  /* Ước lượng bề rộng chữ ở một cỡ phông — dùng để ĐO TRƯỚC khi đặt nhãn vào
+   * trong một vùng. Nhãn không vừa thì đưa ra ngoài, không bao giờ cắt. */
+  function rongChu(s, cx) { return String(s).length * (cx || 11) * 0.56; }
+
+  /* =========================================================================
+   * 4 · TRỤC
+   * ========================================================================= */
+
+  /* Thang dọc: giá trị → toạ độ y trong khung vẽ (y của khung là mép TRÊN). */
+  function thangDoc(rect, max) {
+    return function (v) { return rect.y + rect.h * (1 - (v / (max || 1))); };
+  }
+
+  /* Thang ngang: chỉ số → toạ độ x. kieu 'band' căn giữa dải, 'point' đúng mốc. */
+  function thangNgang(rect, n, kieu) {
+    var step = (kieu === 'band') ? rect.w / (n || 1) : (n > 1 ? rect.w / (n - 1) : rect.w);
+    return function (i) { return rect.x + step * ((kieu === 'band') ? (i + 0.5) : i); };
+  }
+
+  /**
+   * axisY — trục dọc dùng chung: lưới + nhãn mốc.
+   * Trước đây mỗi biểu đồ tự suy mốc trong thân hàm, và có một hình ghim cứng
+   * max = 10 nên cột nào vượt 10 là tràn khỏi khung. Chốt ở đây một lần.
+   *
+   * o = { rect:{x,y,w,h}, max | maxRaw, count=4, fmt, grid, labels, dai }
+   * Trả về chuỗi markup. Thang tương ứng: THSViz.thangDoc(rect, max).
+   */
+  function axisY(o) {
+    var r = o.rect, n = o.count || 4;
+    var max = (o.max !== undefined && o.max !== null) ? o.max : niceMax(o.maxRaw || 0);
+    var fmt = o.fmt || fmtTruc;
+    var y = thangDoc(r, max), mocs = ticks(max, n), s = '', i;
+
+    /* Dải xen kẽ vẽ trước để nằm dưới lưới. */
+    if (o.dai) {
+      for (i = 0; i < n; i++) {
+        if (i % 2) continue;
+        var yA = y(mocs[i]), yB = y(mocs[i + 1]);
+        s += '<rect x="' + round(r.x) + '" y="' + round(Math.min(yA, yB)) + '" width="' + round(r.w) +
+          '" height="' + round(Math.abs(yA - yB)) + '" fill="' + MAU.daiXen + '"/>';
+      }
+    }
+    for (i = 0; i < mocs.length; i++) {
+      var yy = round(y(mocs[i]));
+      if (o.grid !== false) {
+        s += '<line x1="' + round(r.x) + '" x2="' + round(r.x + r.w) + '" y1="' + yy + '" y2="' + yy +
+          '" stroke="' + (i === 0 ? MAU.truc : MAU.luoi) + '"' + NET + '/>';
+      }
+      if (o.labels !== false) {
+        /* Nhãn trục xếp thẳng hàng dọc → đúng chỗ dùng chữ số đều cột. */
+        s += '<text class="num" x="' + round(r.x - 8) + '" y="' + (yy + 4) + '" text-anchor="end" font-size="11" fill="' +
+          MAU.nhanTruc + '">' + esc(fmt(mocs[i])) + '</text>';
+      }
+    }
+    return '<g class="ths-axis-y">' + s + '</g>';
+  }
+
+  /**
+   * Cắt nhãn theo ba tầng, thay vì để nó bị che mất đuôi:
+   *   tầng 1 — nguyên nhãn
+   *   tầng 2 — cắt ở biên từ, thêm dấu …
+   *   tầng 3 — tối giản: chữ đầu của các từ ("Lớp 9A2 Toán" → "L9T")
+   * Nhãn đầy đủ luôn nằm trong <title>, và luôn còn nguyên trong bảng song sinh.
+   */
+  function catNhan(nhan, quy) {
+    var s = (nhan === null || nhan === undefined) ? '' : String(nhan);
+    if (s.length <= quy) return { text: s, tang: 1 };
+    if (quy >= 6) {
+      var cut = s.slice(0, quy - 1);
+      var khe = cut.lastIndexOf(' ');
+      if (khe >= Math.floor(quy * 0.5)) cut = cut.slice(0, khe);
+      return { text: cut.replace(/[\s,.;:-]+$/, '') + '…', tang: 2 };
+    }
+    var tu = s.split(/\s+/), gon = '';
+    if (tu.length > 1) {
+      for (var i = 0; i < tu.length; i++) if (tu[i]) gon += tu[i].charAt(0);
+    } else {
+      gon = s;
+    }
+    if (gon.length > quy) gon = gon.slice(0, Math.max(1, quy));
+    return { text: gon, tang: 3 };
+  }
+
+  function veNhanCat(x, y, nhan, quy, anchor, cx, mau, dam) {
+    var c = catNhan(nhan, quy);
+    return '<text x="' + round(x) + '" y="' + round(y) + '"' +
+      (anchor ? ' text-anchor="' + anchor + '"' : '') +
+      ' font-size="' + (cx || 11) + '"' + (dam ? ' font-weight="600"' : '') +
+      ' fill="' + (mau || MAU.nhanGiaiDoan) + '">' + esc(c.text) +
+      (c.tang > 1 ? '<title>' + esc(nhan) + '</title>' : '') + '</text>';
+  }
+
+  /**
+   * axisX — trục ngang dạng dải (band) hoặc dạng điểm (point), có ba tầng cắt nhãn.
+   * o = { rect, labels, kind:'band'|'point', dy, baseline, mauChu, dam }
+   */
+  function axisX(o) {
+    var r = o.rect, nhan = o.labels || [], kieu = o.kind || 'band';
+    var n = nhan.length || 1;
+    var step = (kieu === 'band') ? r.w / n : (n > 1 ? r.w / (n - 1) : r.w);
+    var x = thangNgang(r, n, kieu);
+    var quy = Math.max(2, Math.floor((step - 8) / 6.2));   /* 11px ≈ 6,2px mỗi chữ */
+    var yy = r.y + r.h + (o.dy === undefined ? 18 : o.dy);
+    var s = '', i;
+
+    if (o.baseline !== false) {
+      s += '<line x1="' + round(r.x) + '" x2="' + round(r.x + r.w) + '" y1="' + round(r.y + r.h) +
+        '" y2="' + round(r.y + r.h) + '" stroke="' + MAU.truc + '"' + NET + '/>';
+    }
+    for (i = 0; i < nhan.length; i++) {
+      s += veNhanCat(x(i), yy, nhan[i], quy, 'middle', 11, o.mauChu || MAU.nhanGiaiDoan, o.dam);
+    }
+    return '<g class="ths-axis-x">' + s + '</g>';
+  }
+
+  function nhanCua(d) {
+    var L = [];
+    for (var i = 0; i < d.length; i++) L.push(d[i].label);
+    return L;
+  }
+
+  /* Màu cho một dấu.
+   *  - mặc định: MỘT màu cho cả hình (danh mục — chiều dài đã nói ai cao ai thấp)
+   *  - o.ordinal: dải xanh 4 bước theo thứ tự hạng (khoảng điểm, khối, mức)
+   *  - o.series : thang phân loại, chỉ khi các chuỗi đúng là chủ đề
+   * Màu ghim theo THỰC THỂ, không theo số dòng: lọc bớt một chuỗi không được
+   * sơn lại phần còn lại. Nên khi cần màu riêng thì đặt vào chính dòng dữ liệu. */
+  function mauDau(o, it, i, n) {
+    if (it && it.mau) return it.mau;
+    if (o.ordinal) return THANG[Math.min(THANG.length - 1, Math.floor(i * THANG.length / Math.max(1, n)))];
+    if (o.series) return CHUOI[i % CHUOI.length];
+    return o.mauChung || MAU.brand600;
+  }
+
+  /* =========================================================================
+   * 5 · DẠNG SỐ — không phải biểu đồ
+   * Một con số là một ô chỉ số, không phải biểu đồ cột một cột.
+   * ========================================================================= */
+
+  /**
+   * statTile — ô chỉ số. Nhãn viết thường, giá trị bằng phông sans nửa đậm,
+   * delta có dấu và NÓI RÕ so với kỳ nào, kèm đường nhỏ.
+   * o.spark PHẢI là đúng chuỗi số của hình lớn nói về cùng chỉ số đó ở bên
+   * dưới. Vòng 4: một ô vẽ vệt đi lên trong khi hình sáu tuần ngay dưới là
+   * 0 · 10 · 0 · 2 · 0 · 1 — người đọc thấy hai hình đá nhau. Không có đúng
+   * chuỗi đó thì BỎ HẲN o.spark, đừng vẽ một vệt khác.
+   * Giá trị dùng CHỮ SỐ TỈ LỆ mặc định của phông — không tabular-nums.
+   * o = { label, value, unit, fig, delta:{text,huong}, note, spark:{values,mau},
+   *       icon, iconBg, delay }
+   */
+  function statTile(o) {
+    var s = '<div class="kpi reveal"' + (o.delay ? ' style="transition-delay:' + o.delay + 's"' : '') + '>';
+    s += '<div class="top">';
+    s += '<div class="icon" style="background:' + (o.iconBg || MAU.brand50) + '">' + (o.icon || '') + '</div>';
+    if (o.spark && o.spark.values) {
+      s += sparkline({ values: o.spark.values, mau: o.spark.mau, ariaLabel: o.spark.ariaLabel || ('Xu hướng của ' + (o.label || '')) });
+    }
+    s += '</div>';
+    s += '<h3>' + esc(o.label || '') + '</h3>';
+    /* KHÔNG class="num" ở đây — số lớn đứng một mình dùng chữ số tỉ lệ.
+     * valueHtml nhận HTML thô, để chỗ gọi tự bọc một thẻ span mang thuộc tính
+     * data-fig — nhờ vậy mã số liệu nằm NGUYÊN VĂN trong file và
+     * scripts/check_sidecar.py đọc được bằng cách đọc file, không cần chạy trang. */
+    s += '<div class="big"' + (o.fig ? ' data-fig="' + esc(o.fig) + '"' : '') + '>' +
+      (o.valueHtml || esc(o.value)) + (o.unit ? '<small>' + esc(o.unit) + '</small>' : '') + '</div>';
+    if (o.delta) {
+      /* MAU NGU NGHIA DA BO. Vong thu 4: hai nguoi doc doc lap deu doc o delta
+       * to xanh thanh tin vui, trong khi than bai ngay duoi tu noi hai cua so
+       * khong so thang duoc — mot ben roi vao nghi he, mot ben chi co 1 luot nop.
+       * O chi so khong du cho de noi dieu kien, nen no KHONG duoc phat tin hieu
+       * tot-xau. Huong phai noi bang CHU trong o.delta.text.
+       * o.delta.huong giu lai cho tuong thich va bi bo qua. */
+      s += '<div class="delta flat"' + (o.delta.fig ? ' data-fig="' + esc(o.delta.fig) + '"' : '') +
+        '>' + esc(o.delta.text) + '</div>';
+    }
+    if (o.note) s += '<div class="note">' + o.note + '</div>';
+    return s + '</div>';
+  }
+
+  /** kpiRow — hàng chỉ số. 4 đến 6 ô, không hơn: đây là hình mở đầu mọi báo cáo. */
+  function kpiRow(o) {
+    var t = (o.tiles || []).slice(0, 6), s = '<div class="kpis">', i;
+    for (i = 0; i < t.length; i++) s += statTile(gop(t[i], { delay: round(i * 0.07) }));
+    return s + '</div>';
+  }
+
+  /** heroFigure — số lớn, từ 48px, ĐÚNG MỘT CÁI mỗi trang. Cùng phông sans với
+   * cả trang: phông trang trí hay phông có chân đọc ra thành đồ trang trí. */
+  function heroFigure(o) {
+    return '<div class="hero-figure">' +
+      '<div class="hf-num"' + (o.fig ? ' data-fig="' + esc(o.fig) + '"' : '') + '>' +
+      (o.valueHtml || esc(o.value)) + (o.unit ? '<small>' + esc(o.unit) + '</small>' : '') + '</div>' +
+      '<div class="hf-lbl">' + esc(o.label || '') + '</div>' +
+      (o.note ? '<div class="hf-note">' + esc(o.note) + '</div>' : '') + '</div>';
+  }
+
+  /** meter — thanh mức: một tỉ lệ so với một mức.
+   * Rãnh là BƯỚC NHẠT CỦA CÙNG DẢI (#DDEBFA), không phải xám, để trạng thái đọc
+   * được trên cả thanh. Đây là hình thay cho "vành tròn hai lát". */
+  function meter(o) {
+    var max = (o.max === undefined || o.max === null) ? 100 : o.max;
+    var v = clamp(o.value || 0, 0, max);
+    var w = o.w || 480, h = o.h || 14;
+    var bw = max ? (v / max) * w : 0;
+    var fmt = o.fmt || function (x) { return tiLePhan(x, 1); };
+    var s = '<rect x="0" y="0" width="' + w + '" height="' + h + '" rx="' + (h / 2) + '" fill="' + (o.rang || MAU.brand100) + '"/>';
+    s += '<path class="ths-grow-x" d="' + thanhNgang(0, 0, bw, h, 4) + '" fill="' + (o.mau || MAU.brand600) + '"><title>' +
+      esc(o.label || 'Mức') + ': ' + esc(fmt(v)) + '</title></path>';
+    return kemBang(khungSvg(o, w, h, s, 'ths-meter'), o, {
+      cols: [{ key: 'label', label: 'Chỉ số' }, { key: 'value', label: 'Đang có', num: true }, { key: 'max', label: 'Mức tối đa', num: true }],
+      rows: [{ label: o.label || o.title || 'Chỉ số', value: fmt(v), max: fmt(max) }]
+    });
+  }
+
+  /* =========================================================================
+   * 6 · SO SÁNH
+   * ========================================================================= */
+
+  /**
+   * bars — cột ngang. Hình chủ lực của báo cáo trường học: tên môn, tên nhiệm
+   * vụ, tên học sinh đều dài, mà cột ngang chứa được tên dài.
+   *
+   * Bố cục cố định: [tên][số ở một cột cố định][thanh khởi hành từ một x duy
+   * nhất]. Nhờ vậy dấu tiếng Việt dài ngắn thế nào cũng không đẩy lệch cột số.
+   * Mặc định MỘT màu cho mọi thanh — xem luật 2 ở đầu file.
+   */
+  function bars(o) {
+    var d = o.data || [];
+    var w = o.w || 640;
+    var nameW = o.nameW || 168, valueW = o.valueW || 62;
+    var rowH = o.rowH || 34;
+    var pt = (o.padTop === undefined) ? 8 : o.padTop;
+    var pb = (o.padBottom === undefined) ? 8 : o.padBottom;
+    var pl = o.padLeft || 0, pr = (o.padRight === undefined) ? 16 : o.padRight;
+    var barX = pl + nameW + valueW;      /* mọi thanh cùng một mốc khởi hành */
+    var h = pt + rowH * Math.max(1, d.length) + pb;
+    var i, tho = 0;
+    for (i = 0; i < d.length; i++) if ((d[i].value || 0) > tho) tho = d[i].value || 0;
+    var max = (o.max !== undefined && o.max !== null) ? o.max : niceMax(tho);
+    var plotW = Math.max(20, w - barX - pr);
+    var x = scaleLinear(0, max, 0, plotW);
+    var fmt = o.fmt || nguyen;
+    var nhieu = !!o.series;
+    var s = '', hang = [];
+
+    for (i = 0; i < d.length; i++) {
+      var it = d[i];
+      var day = Math.min(DAY_TOI_DA, rowH - 10);
+      var yTop = pt + rowH * i;
+      var yBar = yTop + (rowH - day) / 2;
+      var bw = Math.max(0, x(it.value || 0));
+      var mau = mauDau(o, it, i, d.length);
+
+      s += veNhanCat(pl, yBar + day / 2 + 4, it.label, Math.floor(nameW / 6.6), null, 13, MAU.gray700);
+      /* Số dẫn đầu, neo phải vào đúng một cột. Các số này xếp thẳng hàng DỌC
+       * nên đây là chỗ đúng để dùng chữ số đều cột. */
+      s += '<text class="num" x="' + round(barX - 12) + '" y="' + round(yBar + day / 2 + 4) +
+        '" text-anchor="end" font-size="13" font-weight="700" fill="' + MAU.soTrenDau + '">' + esc(fmt(it.value)) + '</text>';
+      /* Khe nền 2px giữa thanh và mặt trục. */
+      var p = thanhNgang(barX + 2, yBar, bw, day, 4);
+      if (p) {
+        s += '<path class="ths-grow-x' + lopVan(i, nhieu) + '" d="' + p + '" fill="' + mau +
+          '" style="transition-delay:' + round(i * 0.05) + 's"/>';
+      }
+      /* Vùng bắt chuột cao hết dòng: thanh 3px thì không ai trỏ trúng. */
+      s += '<rect class="ths-hit" data-i="' + i + '" x="' + round(pl) + '" y="' + round(yTop) + '" width="' + round(w - pl) +
+        '" height="' + round(rowH) + '" fill="transparent"' + (o.clickable ? ' style="cursor:pointer"' : '') + '><title>' +
+        esc(it.label) + ': ' + esc(fmt(it.value)) + (o.unit ? ' ' + esc(o.unit) : '') + '</title></rect>';
+      hang.push({ label: it.label, value: fmt(it.value), ghi: it.ghi || '' });
+    }
+    /* Đường gốc duy nhất, dựng sau để nằm trên nền dải. */
+    s += '<line x1="' + round(barX) + '" x2="' + round(barX) + '" y1="' + round(pt) + '" y2="' + round(h - pb) +
+      '" stroke="' + MAU.truc + '"' + NET + '/>';
+
+    var svg = khungSvg(o, w, h, s, 'ths-bars');
+    if (nhieu) {
+      var lg = [];
+      for (i = 0; i < d.length; i++) lg.push({ label: d[i].label, mau: mauDau(o, d[i], i, d.length) });
+      svg += chuGiai(lg, true);
+    }
+    return kemBang(svg, o, {
+      cols: [{ key: 'label', label: o.colLabel || 'Mục' }, { key: 'value', label: o.colValue || 'Giá trị', num: true }, { key: 'ghi', label: 'Ghi chú' }],
+      rows: hang
+    });
+  }
+
+  /**
+   * barsEmphasis — làm nổi. Một thanh #237BD3, phần còn lại #D0D5DD.
+   * Đây là hình bị dùng ít nhất, và thường là câu trả lời đúng cho "làm biểu đồ
+   * này rõ hơn". Nếu câu chuyện là "riêng lớp này tụt" thì đây là hình, không
+   * phải thang phân loại.
+   */
+  function barsEmphasis(o) {
+    var d = (o.data || []).slice(), i;
+    var noi = (o.emphasis === undefined) ? 0 : o.emphasis;
+    for (i = 0; i < d.length; i++) {
+      d[i] = gop(d[i], { mau: (i === noi || d[i].label === noi) ? MAU.brand600 : MAU.boiCanh });
+    }
+    return bars(gop(o, { data: d, series: false }));
+  }
+
+  /**
+   * columns — cột dọc. Dùng khi hạng là thời gian hoặc tên ngắn.
+   * Mỗi dải có một ô bắt chuột trong suốt CAO HẾT KHUNG, để cột thấp một em vẫn
+   * bấm được chứ không phải nhắm vào dải 6px.
+   */
+  function columns(o) {
+    var d = o.data || [];
+    var w = o.w || 640, h = o.h || 300;
+    var pad = gop({ t: 34, r: 16, b: 40, l: 46 }, o.pad);
+    var rect = { x: pad.l, y: pad.t, w: w - pad.l - pad.r, h: h - pad.t - pad.b };
+    var i, tho = 0;
+    for (i = 0; i < d.length; i++) if ((d[i].value || 0) > tho) tho = d[i].value || 0;
+    var max = (o.max !== undefined && o.max !== null) ? o.max : niceMax(tho);
+    var y = thangDoc(rect, max), x = thangNgang(rect, d.length, 'band');
+    var band = rect.w / Math.max(1, d.length);
+    var bw = beDay(band, 0.62, o.barW);
+    var fmt = o.fmt || nguyen;
+    var nhieu = !!o.series;
+    var s = axisY({ rect: rect, max: max, count: o.count || 4, fmt: o.fmtTruc || fmt, dai: o.dai });
+    var hang = [];
+
+    for (i = 0; i < d.length; i++) {
+      var v = d[i].value || 0;
+      var top = y(v), ch = rect.y + rect.h - top;
+      var cx = x(i), bx = cx - bw / 2;
+      var mau = mauDau(o, d[i], i, d.length);
+
+      s += '<path class="ths-grow' + lopVan(i, nhieu) + '" d="' + cotDoc(bx, top, bw, ch, 4) + '" fill="' + mau +
+        '" style="transition-delay:' + round(i * 0.06) + 's"/>';
+      /* Cột dọc → giá trị trên nắp. Hàng nhãn này nằm NGANG nên không tabular. */
+      s += '<text x="' + round(cx) + '" y="' + round(top - 9) + '" text-anchor="middle" font-size="13" font-weight="700" fill="' +
+        MAU.soTrenDau + '">' + esc(fmt(v)) + '</text>';
+      s += '<rect class="ths-hit" data-i="' + i + '" x="' + round(cx - band / 2) + '" y="' + round(rect.y) +
+        '" width="' + round(band) + '" height="' + round(rect.h) + '" fill="transparent"' +
+        (o.clickable ? ' style="cursor:pointer"' : '') + '><title>' + esc(d[i].label) + ': ' + esc(fmt(v)) +
+        (o.unit ? ' ' + esc(o.unit) : '') + '</title></rect>';
+      hang.push({ label: d[i].label, value: fmt(v), ghi: d[i].ghi || '' });
+    }
+    s += axisX({ rect: rect, labels: nhanCua(d), kind: 'band', baseline: false });
+
+    var svg = khungSvg(o, w, h, s, 'ths-columns');
+    if (nhieu) {
+      var lg = [];
+      for (i = 0; i < d.length; i++) lg.push({ label: d[i].label, mau: mauDau(o, d[i], i, d.length) });
+      svg += chuGiai(lg, true);
+    }
+    return kemBang(svg, o, {
+      cols: [{ key: 'label', label: o.colLabel || 'Mục' }, { key: 'value', label: o.colValue || 'Giá trị', num: true }, { key: 'ghi', label: 'Ghi chú' }],
+      rows: hang
+    });
+  }
+
+  /**
+   * histogram — cột tần số cho phổ điểm.
+   * Khoảng điểm là THỨ TỰ (đảo `<5` với `>8` là đổi nghĩa), nên dùng dải xanh
+   * 4 bước, không dùng bốn màu phân loại.
+   * Chỉ dựng khi đã quét đủ sổ lớp — hệ thống không có công cụ trả phổ điểm, và
+   * con số này là tự tính từ hai lần đọc. Nói rõ điều đó trong phụ đề của thẻ.
+   */
+  function histogram(o) {
+    return columns(gop(o, { ordinal: true, series: false, colLabel: o.colLabel || 'Khoảng điểm', colValue: o.colValue || 'Số em' }));
+  }
+
+  /**
+   * dotPlot — mỗi mục một điểm trên CÙNG một thang.
+   * Hình tốt nhất để so nhiều lớp: thấy ngay lớp nào tách khỏi nhóm, và nó chịu
+   * được nhiều mục hơn cột ngang. Cũng là hình thay cho radar.
+   */
+  function dotPlot(o) {
+    var d = o.data || [];
+    var w = o.w || 660, nameW = o.nameW || 150, rowH = o.rowH || 30;
+    var pt = 30, pb = 12, pr = 58;
+    var h = pt + rowH * Math.max(1, d.length) + pb;
+    var i, tho = 0;
+    for (i = 0; i < d.length; i++) if ((d[i].value || 0) > tho) tho = d[i].value || 0;
+    var max = (o.max !== undefined && o.max !== null) ? o.max : niceMax(tho);
+    var plotW = Math.max(30, w - nameW - pr);
+    var x = scaleLinear(0, max, nameW, nameW + plotW);
+    var fmt = o.fmt || function (v) { return soVN(v, 1); };
+    var s = '', hang = [], k;
+
+    for (k = 0; k <= 4; k++) {
+      var gv = max * k / 4, gx = round(x(gv));
+      s += '<line x1="' + gx + '" x2="' + gx + '" y1="' + pt + '" y2="' + round(h - pb) + '" stroke="' + MAU.luoi + '"' + NET + '/>';
+      s += '<text class="num" x="' + gx + '" y="' + (pt - 12) + '" text-anchor="middle" font-size="11" fill="' + MAU.nhanTruc + '">' +
+        esc(fmt(gv)) + '</text>';
+    }
+    for (i = 0; i < d.length; i++) {
+      var it = d[i], yy = pt + rowH * i + rowH / 2, cx = round(x(it.value || 0));
+      var mau = mauDau(o, it, i, d.length);
+      s += veNhanCat(0, yy + 4, it.label, Math.floor(nameW / 6.6), null, 13, MAU.gray700);
+      s += '<line x1="' + round(nameW) + '" x2="' + cx + '" y1="' + round(yy) + '" y2="' + round(yy) + '" stroke="' + MAU.gray200 + '"' + NET + '/>';
+      /* Điểm dấu từ 8px (r ≥ 4), tô màu chuỗi, vành nền 2px để đọc được ở chỗ chồng nhau. */
+      s += '<circle cx="' + cx + '" cy="' + round(yy) + '" r="6" fill="' + mau + '"' + VANH + '/>';
+      s += '<text class="num" x="' + round(w - 6) + '" y="' + round(yy + 4) + '" text-anchor="end" font-size="12.5" font-weight="700" fill="' +
+        MAU.soTrenDau + '">' + esc(fmt(it.value)) + '</text>';
+      s += '<rect class="ths-hit" data-i="' + i + '" x="0" y="' + round(pt + rowH * i) + '" width="' + w + '" height="' + rowH +
+        '" fill="transparent"><title>' + esc(it.label) + ': ' + esc(fmt(it.value)) + (o.unit ? ' ' + esc(o.unit) : '') + '</title></rect>';
+      hang.push({ label: it.label, value: fmt(it.value), ghi: it.ghi || '' });
+    }
+    return kemBang(khungSvg(o, w, h, s, 'ths-dotplot'), o, {
+      cols: [{ key: 'label', label: o.colLabel || 'Mục' }, { key: 'value', label: o.colValue || 'Giá trị', num: true }, { key: 'ghi', label: 'Ghi chú' }],
+      rows: hang
+    });
+  }
+
+  /**
+   * dumbbell — trước → sau theo từng mục. MỘT màu, HAI độ đậm (không phải hai
+   * màu phân loại: trước và sau là cùng một đại lượng ở hai thời điểm).
+   */
+  function dumbbell(o) {
+    var d = o.data || [];
+    var w = o.w || 660, nameW = o.nameW || 150, rowH = o.rowH || 36;
+    var pt = 30, pb = 12, pr = 58;
+    var h = pt + rowH * Math.max(1, d.length) + pb;
+    var i, tho = 0;
+    for (i = 0; i < d.length; i++) tho = Math.max(tho, d[i].truoc || 0, d[i].sau || 0);
+    var max = (o.max !== undefined && o.max !== null) ? o.max : niceMax(tho);
+    var min = (o.min === undefined) ? 0 : o.min;
+    var plotW = Math.max(30, w - nameW - pr);
+    var x = scaleLinear(min, max, nameW, nameW + plotW);
+    var fmt = o.fmt || function (v) { return soVN(v, 1); };
+    var mauTruoc = o.mauTruoc || MAU.brand300;   /* cùng dải, nhạt hơn */
+    var mauSau = o.mauSau || MAU.brand600;
+    var s = '', hang = [], k;
+
+    for (k = 0; k <= 4; k++) {
+      var gv = min + (max - min) * k / 4, gx = round(x(gv));
+      s += '<line x1="' + gx + '" x2="' + gx + '" y1="' + pt + '" y2="' + round(h - pb) + '" stroke="' + MAU.luoi + '"' + NET + '/>';
+      s += '<text class="num" x="' + gx + '" y="' + (pt - 12) + '" text-anchor="middle" font-size="11" fill="' + MAU.nhanTruc + '">' +
+        esc(fmt(gv)) + '</text>';
+    }
+    for (i = 0; i < d.length; i++) {
+      var it = d[i], yy = pt + rowH * i + rowH / 2;
+      var xa = round(x(it.truoc || 0)), xb = round(x(it.sau || 0));
+      var chenh = (it.sau || 0) - (it.truoc || 0);
+      s += veNhanCat(0, yy + 4, it.label, Math.floor(nameW / 6.6), null, 13, MAU.gray700);
+      s += '<line x1="' + xa + '" x2="' + xb + '" y1="' + round(yy) + '" y2="' + round(yy) + '" stroke="' + MAU.gray200 +
+        '" stroke-width="3" stroke-linecap="round"' + NET + '/>';
+      s += '<circle cx="' + xa + '" cy="' + round(yy) + '" r="5.5" fill="' + mauTruoc + '"' + VANH + '/>';
+      s += '<circle cx="' + xb + '" cy="' + round(yy) + '" r="5.5" fill="' + mauSau + '"' + VANH + '/>';
+      /* Chữ dùng mực chữ, không mang màu dữ liệu — dấu cộng/trừ đã nói chiều. */
+      s += '<text class="num" x="' + round(w - 6) + '" y="' + round(yy + 4) + '" text-anchor="end" font-size="12.5" font-weight="700" fill="' +
+        MAU.soTrenDau + '">' + esc((chenh >= 0 ? '+' : '') + soVN(chenh, 1)) + '</text>';
+      s += '<rect class="ths-hit" data-i="' + i + '" x="0" y="' + round(pt + rowH * i) + '" width="' + w + '" height="' + rowH +
+        '" fill="transparent"><title>' + esc(it.label) + ' · ' + esc(o.nhanTruoc || 'trước') + ' ' + esc(fmt(it.truoc)) +
+        ' → ' + esc(o.nhanSau || 'sau') + ' ' + esc(fmt(it.sau)) + '</title></rect>';
+      hang.push({ label: it.label, truoc: fmt(it.truoc), sau: fmt(it.sau), delta: (chenh >= 0 ? '+' : '') + soVN(chenh, 1) });
+    }
+    var svg = khungSvg(o, w, h, s, 'ths-dumbbell');
+    svg += chuGiai([{ label: o.nhanTruoc || 'Trước', mau: mauTruoc }, { label: o.nhanSau || 'Sau', mau: mauSau }], true);
+    return kemBang(svg, o, {
+      cols: [{ key: 'label', label: o.colLabel || 'Mục' }, { key: 'truoc', label: o.nhanTruoc || 'Trước', num: true },
+        { key: 'sau', label: o.nhanSau || 'Sau', num: true }, { key: 'delta', label: 'Chênh lệch', num: true }],
+      rows: hang
+    });
+  }
+
+  /** bullet — thanh mục tiêu: giá trị so với một vạch mục tiêu.
+   * Cùng với cột ngang, đây là một trong hai hình đọc được tốt nhất. */
+  function bullet(o) {
+    var w = o.w || 460, h = o.h || 30;
+    var max = (o.max !== undefined && o.max !== null) ? o.max : niceMax(Math.max(o.value || 0, o.target || 0));
+    var x = scaleLinear(0, max, 0, w);
+    var fmt = o.fmt || function (v) { return soVN(v, 1); };
+    var bw = Math.max(0, x(clamp(o.value || 0, 0, max)));
+    var tx = round(x(clamp(o.target || 0, 0, max)));
+    var yb = h / 2 - 7;
+    var s = '<rect x="0" y="' + round(yb) + '" width="' + w + '" height="14" rx="7" fill="' + (o.rang || MAU.brand100) + '"/>';
+    s += '<path class="ths-grow-x" d="' + thanhNgang(0, yb, bw, 14, 4) + '" fill="' + (o.mau || MAU.brand600) + '"/>';
+    /* Mốc mục tiêu là một VẠCH, không phải một màu — màu một mình không nói được "mục tiêu". */
+    s += '<line x1="' + tx + '" x2="' + tx + '" y1="' + round(h / 2 - 13) + '" y2="' + round(h / 2 + 13) + '" stroke="' + MAU.gray900 +
+      '" stroke-width="3" stroke-linecap="round"' + NET + '/>';
+    s += '<rect class="ths-hit" x="0" y="0" width="' + w + '" height="' + h + '" fill="transparent"><title>' +
+      esc(o.label || 'Giá trị') + ': ' + esc(fmt(o.value)) + ' · ' + esc(o.targetLabel || 'mục tiêu') + ' ' + esc(fmt(o.target)) +
+      '</title></rect>';
+    return kemBang(khungSvg(o, w, h, s, 'ths-bullet'), o, {
+      cols: [{ key: 'label', label: 'Chỉ số' }, { key: 'value', label: 'Đang có', num: true }, { key: 'target', label: o.targetLabel || 'Mục tiêu', num: true }],
+      rows: [{ label: o.label || o.title || 'Chỉ số', value: fmt(o.value), target: fmt(o.target) }]
+    });
+  }
+
+  /* =========================================================================
+   * 7 · XU HƯỚNG
+   * ========================================================================= */
+
+  /* Thân dùng chung của lineChart và areaChart. */
+  function _duong(o, wash) {
+    var series = (o.series || []).slice(0, wash ? 1 : 3);   /* vùng: CHỈ một chuỗi */
+    var nhan = o.labels || [];
+    var w = o.w || 680, h = o.h || 300;
+    var pad = gop({ t: 34, r: 24, b: 38, l: 46 }, o.pad);
+    var rect = { x: pad.l, y: pad.t, w: w - pad.l - pad.r, h: h - pad.t - pad.b };
+    var i, j, tho = 0;
+    for (i = 0; i < series.length; i++) {
+      for (j = 0; j < series[i].values.length; j++) {
+        var vv = series[i].values[j];
+        if (vv !== null && vv !== undefined && vv > tho) tho = vv;
+      }
+    }
+    var max = (o.max !== undefined && o.max !== null) ? o.max : niceMax(tho);
+    var n = nhan.length || (series[0] ? series[0].values.length : 1);
+    var y = thangDoc(rect, max), x = thangNgang(rect, n, 'point');
+    var fmt = o.fmt || nguyen;
+    var nhieu = series.length > 1;
+    var s = axisY({ rect: rect, max: max, count: o.count || 4, fmt: o.fmtTruc || fmt, dai: o.dai });
+    var cols = [{ key: 'label', label: o.colLabel || 'Mốc' }], hang = [], lg = [], k;
+
+    for (i = 0; i < series.length; i++) {
+      var se = series[i], mau = se.mau || CHUOI[i % CHUOI.length], pts = [], cao = -Infinity, thap = Infinity, iCao = 0, iThap = 0;
+      for (j = 0; j < se.values.length; j++) {
+        if (se.values[j] === null || se.values[j] === undefined) continue;
+        pts.push({ x: x(j), y: y(se.values[j]), i: j, v: se.values[j] });
+        if (se.values[j] > cao) { cao = se.values[j]; iCao = pts.length - 1; }
+        if (se.values[j] < thap) { thap = se.values[j]; iThap = pts.length - 1; }
+      }
+      if (!pts.length) continue;
+      if (wash) {
+        /* Nền vùng: màu chuỗi ở ~10% mờ — một lớp rửa, không phải khối đặc. */
+        s += '<path d="' + areaPath(pts, rect.y + rect.h, o.smooth !== false) + '" fill="' + mau + '" opacity=".10"/>';
+      }
+      s += '<path class="ths-draw" d="' + ((o.smooth !== false) ? smoothPath(pts) : linePath(pts)) +
+        '" fill="none" stroke="' + mau + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"' + NET +
+        ' style="transition-delay:' + round(i * 0.2) + 's"/>';
+
+      for (j = 0; j < pts.length; j++) {
+        var cuoi = (j === pts.length - 1);
+        /* Điểm dấu từ 8px (r ≥ 4), tô màu chuỗi, vành nền 2px. */
+        s += '<circle cx="' + round(pts[j].x) + '" cy="' + round(pts[j].y) + '" r="' + (cuoi ? 5.5 : 4) +
+          '" fill="' + mau + '"' + VANH + '/>';
+        /* KHÔNG đặt số lên mọi điểm — nhãn trực tiếp có tác dụng VÌ nó thưa.
+         * Chỉ nhãn ở điểm cuối và hai giá trị cực. */
+        var dangNhan = cuoi || (o.labelPoints === 'all') || (o.labelPoints !== false && (j === iCao || j === iThap));
+        if (dangNhan) {
+          /* Chuỗi 1 nhãn lên trên dấu, chuỗi 2 xuống dưới — hai đường cắt nhau
+           * thì hai nhãn vẫn không chồng, mà không phải đẩy nhãn rời khỏi đường. */
+          s += '<text x="' + round(pts[j].x) + '" y="' + round(pts[j].y + (i === 0 ? -13 : 20)) +
+            '" text-anchor="middle" font-size="' + (cuoi ? 13 : 12) +
+            '" font-weight="' + (cuoi ? 700 : 600) + '" fill="' + (cuoi ? MAU.soTrenDau : MAU.mucNhat) + '">' +
+            esc(fmt(pts[j].v)) + '</text>';
+        }
+        /* Vùng bắt chuột r=22 (44px): dấu 8px là cái đầu kim không ai bấm trúng. */
+        s += '<circle class="ths-hit" data-i="' + pts[j].i + '" data-s="' + i + '" cx="' + round(pts[j].x) + '" cy="' + round(pts[j].y) +
+          '" r="22" fill="transparent"><title>' + esc(nhan[pts[j].i] || ('#' + (pts[j].i + 1))) +
+          (se.name ? ' · ' + esc(se.name) : '') + ': ' + esc(fmt(pts[j].v)) + (o.unit ? ' ' + esc(o.unit) : '') + '</title></circle>';
+      }
+      cols.push({ key: 's' + i, label: se.name || ('Chuỗi ' + (i + 1)), num: true });
+      lg.push({ label: se.name || ('Chuỗi ' + (i + 1)), mau: mau });
+    }
+    s += axisX({ rect: rect, labels: nhan, kind: 'point', baseline: true });
+
+    for (k = 0; k < n; k++) {
+      var r0 = { label: nhan[k] || ('#' + (k + 1)) };
+      for (i = 0; i < series.length; i++) {
+        var val = series[i].values[k];
+        r0['s' + i] = (val === null || val === undefined) ? '—' : fmt(val);
+      }
+      hang.push(r0);
+    }
+    var svg = khungSvg(o, w, h, s, wash ? 'ths-area' : 'ths-line');
+    if (nhieu) svg += chuGiai(lg, true);   /* một chuỗi thì KHÔNG có khung chú giải */
+    return kemBang(svg, o, { cols: cols, rows: hang });
+  }
+
+  /** lineChart — 1 đến 3 chuỗi, nét 2px, vẽ dần khi cuộn tới.
+   * Dưới 4 điểm thì đừng vẽ đường — dùng ô chỉ số. */
+  function lineChart(o) { return _duong(o, false); }
+
+  /** areaChart — CHỈ một chuỗi, thêm lớp rửa 10% xuống đường gốc.
+   * Truyền nhiều chuỗi thì chỉ chuỗi đầu được vẽ: vùng xếp lớp đọc sai độ lớn. */
+  function areaChart(o) { return _duong(o, true); }
+
+  /** sparkline — đường nhỏ 12 điểm bên trong ô chỉ số.
+   * Không trục, không nhãn — nó chỉ nói hình dạng. */
+  function sparkline(o) {
+    var v = o.values || [], w = o.w || 64, h = o.h || 26;
+    var mau = o.mau || MAU.gray400, i;
+    if (!v.length) return khungSvg(gop({ ariaLabel: 'Chưa có dữ liệu xu hướng' }, o), w, h, '', 'spark', w);
+    var mn = Math.min.apply(null, v), mx = Math.max.apply(null, v);
+    var rng = (mx - mn) || 1, pts = [];
+    for (i = 0; i < v.length; i++) {
+      pts.push({ x: 4 + (w - 8) * (v.length > 1 ? i / (v.length - 1) : 0), y: (h - 4) - (h - 8) * (v[i] - mn) / rng });
+    }
+    var s = '<path d="' + linePath(pts) + '" fill="none" stroke="' + mau +
+      '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".6"' + NET + '/>' +
+      '<circle cx="' + round(pts[pts.length - 1].x) + '" cy="' + round(pts[pts.length - 1].y) + '" r="2.6" fill="' + mau + '"/>';
+    return khungSvg(gop({ ariaLabel: 'Vệt xu hướng' }, o), w, h, s, 'spark', w);
+  }
+
+  /* =========================================================================
+   * 8 · PHẦN TRÊN TỔNG
+   * ========================================================================= */
+
+  /**
+   * stackedBar — cột xếp lớp. MẶC ĐỊNH cho phần-trên-tổng.
+   * Nằm ngang khi nhiều hạng hoặc tên dài — với dữ liệu trường học thì gần như
+   * luôn nằm ngang. Các đoạn cách nhau khe nền 2px.
+   * Không đặt nhãn vào đoạn giữa: đo trước, không vừa thì để chú giải mang.
+   * Bề dày đoạn chính là số liệu, nên không gắn vector-effect ở đây.
+   */
+  function stackedBar(o) {
+    var d = o.data || [];
+    var w = o.w || 640, h = Math.min(DAY_TOI_DA, o.thickness || DAY_TOI_DA);
+    var rx = (o.radius === undefined) ? 8 : o.radius;
+    var i, tongTho = 0;
+    for (i = 0; i < d.length; i++) tongTho += (d[i].value || 0);
+    var tong = (o.total !== undefined && o.total !== null) ? o.total : tongTho;
+    var chia = tong || 1;
+    var fmt = o.fmt || nguyen;
+    var ordinal = (o.ordinal !== false);   /* mức nhiệm vụ, khoảng điểm… đều là thứ tự */
+    var cid = idMoi('clip');
+    var s = '<defs><clipPath id="' + cid + '"><rect x="0" y="0" width="' + w + '" height="' + h + '" rx="' + rx + '"/></clipPath></defs>';
+    s += '<rect x="0" y="0" width="' + w + '" height="' + h + '" rx="' + rx + '" fill="' + MAU.gray100 + '"/>';
+    s += '<g clip-path="url(#' + cid + ')">';
+    var cur = 0, hang = [], lg = [];
+    for (i = 0; i < d.length; i++) {
+      var frac = (d[i].value || 0) / chia;
+      var segW = frac * w;
+      var ve = Math.max(0, segW - 2);      /* khe nền 2px giữa các đoạn */
+      var mau = d[i].mau || (ordinal ? THANG[Math.min(THANG.length - 1, i)] : CHUOI[i % CHUOI.length]);
+      if (ve > 0) {
+        s += '<rect class="ths-grow-x' + lopVan(i, !ordinal) + '" x="' + round(cur) + '" y="0" width="' + round(ve) + '" height="' + h +
+          '" fill="' + mau + '" style="transform-origin:left;transition-delay:' + round(i * 0.07) + 's">' +
+          '<title>' + esc(d[i].label) + ': ' + esc(fmt(d[i].value)) + ' · ' + esc(tiLe(frac)) + '</title></rect>';
+      }
+      cur += segW;
+      hang.push({ label: d[i].label, value: fmt(d[i].value), pct: tiLe(frac) });
+      lg.push({ label: d[i].label, mau: mau, value: fmt(d[i].value) });
+    }
+    s += '</g>';
+    var svg = khungSvg(o, w, h, s, 'ths-stack') + chuGiai(lg, true);
+    return kemBang(svg, o, {
+      cols: [{ key: 'label', label: o.colLabel || 'Nhóm' }, { key: 'value', label: o.colValue || 'Số lượng', num: true }, { key: 'pct', label: 'Tỉ lệ', num: true }],
+      rows: hang
+    });
+  }
+
+  /**
+   * donut — chỉ dùng khi phần-trên-tổng cần đọc trong một cái nhìn, tối đa 6
+   * lát, và một lát rõ ràng trội. KHÔNG dùng để so các giá trị gần nhau: mắt
+   * người không so được góc. Có lát nào gần nhau thì đổi sang cột ngang.
+   *
+   * Một <circle> cho mỗi lát, cùng bán kính, quay -90° để bắt đầu từ 12 giờ.
+   * Khe hở co theo lát (gap = min(2, độ dài cung)) nên lát bé xíu không ra cung
+   * âm — đó là chỗ vành tròn hay vỡ nhất.
+   * Mỗi lát có <title> con: chú giải in được, không cần JavaScript.
+   */
+  function donut(o) {
+    var d = (o.data || []).slice(0, 6);
+    var size = o.size || 190, r = o.r || 70, sw = o.thickness || 26;
+    var cx = size / 2, cy = size / 2, CIRC = 2 * Math.PI * r;
+    var i, tongTho = 0;
+    for (i = 0; i < d.length; i++) tongTho += (d[i].value || 0);
+    var tong = (o.total !== undefined && o.total !== null) ? o.total : tongTho;
+    var chia = tong || 1;
+    var fmt = o.fmt || nguyen;
+    var ordinal = !!o.ordinal;
+    var acc = 0, s = '', hang = [], lg = [];
+
+    for (i = 0; i < d.length; i++) {
+      var frac = (d[i].value || 0) / chia;
+      var len = frac * CIRC;
+      var khe = Math.min(2, len);            /* lát nhỏ hơn khe thì khe co lại */
+      var cung = Math.max(0, len - khe);
+      var mau = d[i].mau || (ordinal ? THANG[Math.min(THANG.length - 1, i)] : CHUOI[i % CHUOI.length]);
+      s += '<circle class="ths-arc' + lopVan(i, !ordinal) + '" r="' + r + '" cx="' + cx + '" cy="' + cy + '" fill="none" stroke="' + mau +
+        '" stroke-width="' + sw + '" stroke-dasharray="0 ' + round(CIRC) + '"' +
+        ' data-arc="' + round(cung) + '" data-rest="' + round(CIRC - cung) + '" data-off="' + round(-(acc * CIRC) - khe / 2) + '"' +
+        ' data-i="' + i + '" transform="rotate(-90 ' + cx + ' ' + cy + ')"' +
+        (o.clickable ? ' style="cursor:pointer"' : '') + '>' +
+        '<title>' + esc(d[i].label) + ': ' + esc(fmt(d[i].value)) + (o.unit ? ' ' + esc(o.unit) : '') +
+        ' · ' + esc(tiLe(frac)) + '</title></circle>';
+      acc += frac;
+      hang.push({ label: d[i].label, value: fmt(d[i].value), pct: tiLe(frac) });
+      lg.push({ label: d[i].label, mau: mau, value: fmt(d[i].value) });
+    }
+    /* Số giữa vành: KHÔNG class="num". Ở cỡ 30px chữ số đều cột làm "121" trông
+     * rời rạc, có khoảng trống giả giữa các chữ số. */
+    s += '<text x="' + cx + '" y="' + (cy - 3) + '" text-anchor="middle" font-size="30" font-weight="800" fill="' +
+      MAU.soTrenDau + '" data-count="' + (tong || 0) + '" data-dec="' + (o.dec || 0) + '">' + esc(fmt(tong)) + '</text>';
+    s += '<text x="' + cx + '" y="' + (cy + 19) + '" text-anchor="middle" font-size="12" fill="' + MAU.mucNhat + '">' +
+      esc(o.centerLabel || o.unit || '') + '</text>';
+
+    var svg = khungSvg(o, size, size, s, 'ths-donut', o.maxWidth || 220) + chuGiai(lg, true);
+    return kemBang(svg, o, {
+      cols: [{ key: 'label', label: o.colLabel || 'Nhóm' }, { key: 'value', label: o.colValue || 'Số lượng', num: true }, { key: 'pct', label: 'Tỉ lệ', num: true }],
+      rows: hang
+    });
+  }
+
+  /**
+   * divergingStacked — cột xếp lớp hai chiều: thang có THỨ TỰ, căn giữa ở mức
+   * trung tính. Dùng cho "chưa mở ← đang làm → đã nộp" khi muốn thấy cả hai phía
+   * của mức giữa.
+   * o = { rows:[{label, values:[]}], cats:[{label}], middle, w, rowH }
+   */
+  function divergingStacked(o) {
+    var rows = o.rows || [], cats = o.cats || [];
+    var giua = (o.middle === undefined) ? Math.floor(cats.length / 2) : o.middle;
+    var w = o.w || 660, nameW = o.nameW || 150, rowH = o.rowH || 34;
+    var pt = 12, pb = 26;
+    var h = pt + rowH * Math.max(1, rows.length) + pb;
+    var plotW = Math.max(40, w - nameW - 16);
+    var x0 = nameW + plotW / 2;
+    var i, j, thoAm = 0, thoDuong = 0, tongHang = [];
+
+    function tong(v) { var t = 0, k; for (k = 0; k < v.length; k++) t += (v[k] || 0); return t; }
+    for (i = 0; i < rows.length; i++) {
+      var T = tong(rows[i].values) || 1;
+      tongHang.push(T);
+      var am = 0, duong = 0;
+      for (j = 0; j < cats.length; j++) {
+        var f = (rows[i].values[j] || 0) / T;
+        if (j < giua) am += f; else if (j > giua) duong += f; else { am += f / 2; duong += f / 2; }
+      }
+      if (am > thoAm) thoAm = am;
+      if (duong > thoDuong) thoDuong = duong;
+    }
+    var nua = plotW / 2;
+    var thang = Math.max(thoAm, thoDuong) || 1;
+    var s = '', hangBang = [], lg = [];
+    var mauCat = [];
+    for (j = 0; j < cats.length; j++) {
+      if (cats[j].mau) mauCat.push(cats[j].mau);
+      else if (j < giua) mauCat.push(HAI_CHIEU.duoi[Math.min(HAI_CHIEU.duoi.length - 1, giua - 1 - j)]);
+      else if (j > giua) mauCat.push(HAI_CHIEU.tren[Math.min(HAI_CHIEU.tren.length - 1, j - giua - 1)]);
+      else mauCat.push(HAI_CHIEU.giua);
+      lg.push({ label: cats[j].label, mau: mauCat[j] });
+    }
+    for (i = 0; i < rows.length; i++) {
+      var yTop = pt + rowH * i, day = Math.min(DAY_TOI_DA, rowH - 10);
+      var yBar = yTop + (rowH - day) / 2, T2 = tongHang[i];
+      s += veNhanCat(0, yBar + day / 2 + 4, rows[i].label, Math.floor(nameW / 6.6), null, 13, MAU.gray700);
+      /* Trái của mức giữa: xếp từ tâm ra ngoài. */
+      var cur = x0;
+      for (j = giua; j >= 0; j--) {
+        var fa = (rows[i].values[j] || 0) / T2 * (j === giua ? 0.5 : 1) * (nua / thang);
+        if (fa <= 0) continue;
+        s += '<rect x="' + round(cur - fa) + '" y="' + round(yBar) + '" width="' + round(Math.max(0, fa - 2)) + '" height="' + round(day) +
+          '" fill="' + mauCat[j] + '"><title>' + esc(rows[i].label) + ' · ' + esc(cats[j].label) + ': ' + esc(nguyen(rows[i].values[j])) + '</title></rect>';
+        cur -= fa;
+      }
+      cur = x0;
+      for (j = giua; j < cats.length; j++) {
+        var fb = (rows[i].values[j] || 0) / T2 * (j === giua ? 0.5 : 1) * (nua / thang);
+        if (fb <= 0) continue;
+        s += '<rect x="' + round(cur + 2) + '" y="' + round(yBar) + '" width="' + round(Math.max(0, fb - 2)) + '" height="' + round(day) +
+          '" fill="' + mauCat[j] + '"><title>' + esc(rows[i].label) + ' · ' + esc(cats[j].label) + ': ' + esc(nguyen(rows[i].values[j])) + '</title></rect>';
+        cur += fb;
+      }
+      var rb = { label: rows[i].label };
+      for (j = 0; j < cats.length; j++) rb['c' + j] = nguyen(rows[i].values[j]);
+      hangBang.push(rb);
+    }
+    /* Vạch mức giữa — xám trung tính, đọc ra "không có gì". */
+    s += '<line x1="' + round(x0) + '" x2="' + round(x0) + '" y1="' + pt + '" y2="' + round(h - pb) + '" stroke="' + MAU.truc +
+      '" stroke-width="1.5"' + NET + '/>';
+    s += '<text x="' + round(x0) + '" y="' + round(h - 8) + '" text-anchor="middle" font-size="11" fill="' + MAU.nhanTruc + '">' +
+      esc(cats[giua] ? cats[giua].label : 'mức giữa') + '</text>';
+
+    var colsBang = [{ key: 'label', label: o.colLabel || 'Dòng' }];
+    for (j = 0; j < cats.length; j++) colsBang.push({ key: 'c' + j, label: cats[j].label, num: true });
+    return kemBang(khungSvg(o, w, h, s, 'ths-divstack') + chuGiai(lg, true), o, { cols: colsBang, rows: hangBang });
+  }
+
+  /* =========================================================================
+   * 9 · LỆCH VÀ PHÂN BỐ
+   * ========================================================================= */
+
+  /**
+   * divergingBar — trên/dưới một ngưỡng. Xanh một phía, đỏ phía kia, vạch không
+   * màu xám. Không xanh↔lục: cùng lạnh, điểm giữa không đọc ra "không có gì".
+   */
+  function divergingBar(o) {
+    var d = o.data || [];
+    var w = o.w || 660, h = o.h || 290;
+    var pad = gop({ t: 26, r: 16, b: 42, l: 52 }, o.pad);
+    var rect = { x: pad.l, y: pad.t, w: w - pad.l - pad.r, h: h - pad.t - pad.b };
+    var i, tho = 0;
+    for (i = 0; i < d.length; i++) if (Math.abs(d[i].value || 0) > tho) tho = Math.abs(d[i].value || 0);
+    var max = (o.max !== undefined && o.max !== null) ? o.max : niceMax(tho);
+    var y0 = rect.y + rect.h / 2, nua = rect.h / 2;
+    var x = thangNgang(rect, d.length, 'band');
+    var band = rect.w / Math.max(1, d.length);
+    var bw = beDay(band, 0.58, o.barW);
+    var fmt = o.fmt || function (v) { return (v > 0 ? '+' : '') + soVN(v, 1); };
+    var s = '', hang = [], k;
+
+    for (k = -2; k <= 2; k++) {
+      if (k === 0) continue;
+      var yy = round(y0 - nua * (k / 2));
+      s += '<line x1="' + round(rect.x) + '" x2="' + round(rect.x + rect.w) + '" y1="' + yy + '" y2="' + yy +
+        '" stroke="' + MAU.luoi + '"' + NET + '/>';
+      s += '<text class="num" x="' + round(rect.x - 8) + '" y="' + (yy + 4) + '" text-anchor="end" font-size="11" fill="' +
+        MAU.nhanTruc + '">' + esc(fmt(max * k / 2)) + '</text>';
+    }
+    for (i = 0; i < d.length; i++) {
+      var v = d[i].value || 0;
+      var ch = Math.abs(v) / (max || 1) * nua;
+      var top = v >= 0 ? y0 - ch : y0;
+      var mau = v >= 0 ? (o.mauTren || MAU.brand600) : (o.mauDuoi || MAU.loi600);
+      var cx = x(i), bx = cx - bw / 2;
+      s += '<path class="ths-grow" d="' + (v >= 0 ? cotDoc(bx, top, bw, ch, 4) : cotDocXuong(bx, top, bw, ch, 4)) +
+        '" fill="' + mau + '" style="transform-origin:' + (v >= 0 ? 'bottom' : 'top') + ';transition-delay:' + round(i * 0.05) + 's"/>';
+      /* Chữ dùng mực chữ, không mang màu dữ liệu; dấu +/− đã nói chiều. */
+      s += '<text x="' + round(cx) + '" y="' + round(v >= 0 ? (top - 8) : (top + ch + 16)) +
+        '" text-anchor="middle" font-size="12.5" font-weight="700" fill="' + MAU.soTrenDau + '">' + esc(fmt(v)) + '</text>';
+      s += '<rect class="ths-hit" data-i="' + i + '" x="' + round(cx - band / 2) + '" y="' + round(rect.y) + '" width="' + round(band) +
+        '" height="' + round(rect.h) + '" fill="transparent"><title>' + esc(d[i].label) + ': ' + esc(fmt(v)) + '</title></rect>';
+      hang.push({ label: d[i].label, value: fmt(v), ghi: d[i].ghi || '' });
+    }
+    /* Vạch không vẽ sau các cột để luôn đọc được. */
+    s += '<line x1="' + round(rect.x) + '" x2="' + round(rect.x + rect.w) + '" y1="' + round(y0) + '" y2="' + round(y0) +
+      '" stroke="' + MAU.truc + '" stroke-width="1.5"' + NET + '/>';
+    s += axisX({ rect: rect, labels: nhanCua(d), kind: 'band', baseline: false });
+
+    return kemBang(khungSvg(o, w, h, s, 'ths-diverging'), o, {
+      cols: [{ key: 'label', label: o.colLabel || 'Mục' }, { key: 'value', label: o.colValue || 'Chênh lệch', num: true }, { key: 'ghi', label: 'Ghi chú' }],
+      rows: hang
+    });
+  }
+
+  /* Chia nhóm theo phân vi — để một ô lệch hẳn không nuốt cả thang màu. */
+  function nhomPhanVi(vals, k) {
+    var xs = [], i;
+    for (i = 0; i < vals.length; i++) if (vals[i] !== null && vals[i] !== undefined && vals[i] === vals[i]) xs.push(vals[i]);
+    xs.sort(function (a, b) { return a - b; });
+    var moc = [];
+    for (i = 1; i < k; i++) {
+      if (!xs.length) { moc.push(0); continue; }
+      moc.push(xs[Math.min(xs.length - 1, Math.floor(xs.length * i / k))]);
+    }
+    return moc;
+  }
+  function nhomCua(v, moc) {
+    for (var i = 0; i < moc.length; i++) if (v < moc[i]) return i;
+    return moc.length;
+  }
+
+  /**
+   * heatmap — lưới hai chiều (lớp × tuần, khối × môn), chia nhóm theo phân vi.
+   * CHỈ dùng dải xanh. Mọi dải cam đã đo đều trượt phép đầu sáng, nên
+   * ths-course-builder vẽ heatmap bằng dải cam là chỗ không nên bắt chước.
+   * Ô trống tô #F2F4F7 VÀ có hẳn một mục "chưa có dữ liệu" trong chú giải —
+   * không để người đọc tự đoán ô nhạt nghĩa là ít hay là thiếu.
+   * Không gắn vân in cho hình này: thang thứ tự in ra đã thành các mức xám khác nhau.
+   */
+  function heatmap(o) {
+    var rows = o.rows || [], cols = o.cols || [];
+    var cell = o.cell || 40, khe = (o.gap === undefined) ? 2 : o.gap;   /* khe nền 2px */
+    var nameW = o.nameW || 120, topH = o.topH || 26;
+    var w = nameW + cols.length * cell;
+    var h = topH + rows.length * cell + 6;
+    var i, j, tat = [];
+    for (i = 0; i < rows.length; i++) for (j = 0; j < cols.length; j++) tat.push(rows[i].values[j]);
+    var moc = nhomPhanVi(tat, 4);
+    var fmt = o.fmt || nguyen;
+    var s = '', hangBang = [], colsBang = [{ key: 'label', label: o.colLabel || 'Dòng' }];
+
+    for (j = 0; j < cols.length; j++) {
+      s += veNhanCat(nameW + cell * j + cell / 2, topH - 10, cols[j], Math.floor((cell - 4) / 6.2), 'middle', 11, MAU.nhanTruc);
+      colsBang.push({ key: 'c' + j, label: cols[j], num: true });
+    }
+    for (i = 0; i < rows.length; i++) {
+      s += veNhanCat(0, topH + cell * i + cell / 2 + 4, rows[i].label, Math.floor(nameW / 6.6), null, 12, MAU.gray700);
+      var d0 = { label: rows[i].label };
+      for (j = 0; j < cols.length; j++) {
+        var v = rows[i].values[j];
+        var trong = (v === null || v === undefined || v !== v);
+        var nh = trong ? -1 : nhomCua(v, moc);
+        var mau = trong ? MAU.oTrong : THANG[nh];
+        var x0 = nameW + cell * j + khe / 2, y0 = topH + cell * i + khe / 2, sz = cell - khe;
+        s += '<rect x="' + round(x0) + '" y="' + round(y0) + '" width="' + round(sz) + '" height="' + round(sz) +
+          '" rx="4" fill="' + mau + '"><title>' + esc(rows[i].label) + ' · ' + esc(cols[j]) + ': ' +
+          (trong ? 'chưa có dữ liệu' : esc(fmt(v)) + (o.unit ? ' ' + esc(o.unit) : '')) + '</title></rect>';
+        /* Nhãn nằm TRONG một vùng đã tô — ngoại lệ duy nhất được chọn màu theo
+         * độ sáng của vùng. Đo trước: chữ không vừa ô thì bỏ, giá trị vẫn còn
+         * trong bảng song sinh. */
+        if (o.showValues !== false && !trong && sz >= 26 && rongChu(fmt(v), 11) <= sz - 8) {
+          s += '<text class="num" x="' + round(x0 + sz / 2) + '" y="' + round(y0 + sz / 2 + 4) +
+            '" text-anchor="middle" font-size="11" font-weight="700" fill="' + (nh === 3 ? MAU.trang : MAU.soTrenDau) + '">' +
+            esc(fmt(v)) + '</text>';
+        }
+        d0['c' + j] = trong ? 'chưa có dữ liệu' : fmt(v);
+      }
+      hangBang.push(d0);
+    }
+
+    var svg = khungSvg(o, w, h, s, 'ths-heatmap');
+    if (o.legend !== false) {
+      var lg = '<div class="legend"><span class="lg-title">' + esc(o.legendTitle || 'Ít → nhiều') + '</span>';
+      for (i = 0; i < THANG.length; i++) {
+        var tu;
+        if (!moc.length) tu = '—';
+        else if (i === 0) tu = 'dưới ' + fmt(moc[0]);
+        else if (i === THANG.length - 1) tu = 'từ ' + fmt(moc[moc.length - 1]);
+        else tu = fmt(moc[i - 1]) + '–' + fmt(moc[i]);
+        lg += '<span><span class="sw" style="background:' + THANG[i] + '"></span>' + esc(tu) + '</span>';
+      }
+      lg += '<span><span class="sw" style="background:' + MAU.oTrong + '"></span>chưa có dữ liệu</span></div>';
+      svg += lg;
+    }
+    return kemBang(svg, o, { cols: colsBang, rows: hangBang });
+  }
+
+  /* =========================================================================
+   * 10 · NỀN — bố cục, cảnh báo, trạng thái rỗng
+   * ========================================================================= */
+
+  /** smallMultiples — CÁCH BỐ CỤC, không phải một hình riêng.
+   * Dùng khi quá trần chuỗi: mỗi chuỗi một khung con, CÙNG một thang, một màu. */
+  function smallMultiples(o) {
+    var it = o.items || [], i;
+    var s = '<div class="small-multiples" style="grid-template-columns:repeat(' + (o.cols || 2) + ',minmax(0,1fr))">';
+    for (i = 0; i < it.length; i++) {
+      s += '<div class="sm-cell"><div class="chart-title">' + esc(it[i].title || '') + '</div>' +
+        (it[i].sub ? '<div class="chart-sub">' + esc(it[i].sub) + '</div>' : '') + it[i].svg + '</div>';
+    }
+    return s + '</div>';
+  }
+
+  /**
+   * banner — bảng cảnh báo dữ liệu. Khi một chỉ số không qua được cửa chốt thì
+   * thành phần này THAY CHỖ biểu đồ và hiện số thô làm bằng.
+   * Không đoán cơ chế: chỉ được viết cái mà một trường trả về nói đúng như vậy.
+   * o = { muc:'chan'|'canh'|'tin', title, body, evidence:[{label,value}],
+   *       tool, window, note, hoi }
+   */
+  function banner(o) {
+    var muc = o.muc || 'canh';
+    var s = '<div class="dq-banner dq-' + esc(muc) + '" role="note">';
+    s += '<div class="dq-head"><span class="dq-tag">' + esc(o.tag || (muc === 'chan' ? 'Số liệu chưa dùng được' : 'Cần đối chiếu')) + '</span>' +
+      '<h3>' + esc(o.title || '') + '</h3></div>';
+    if (o.body) s += '<p class="dq-body">' + o.body + '</p>';
+    if (o.evidence && o.evidence.length) {
+      s += '<div class="dq-raw"><div class="dq-raw-t">Số thô làm bằng</div><dl>';
+      for (var i = 0; i < o.evidence.length; i++) {
+        s += '<div><dt>' + esc(o.evidence[i].label) + '</dt><dd class="num"' +
+          (o.evidence[i].fig ? ' data-fig="' + esc(o.evidence[i].fig) + '"' : '') + '>' +
+          (o.evidence[i].valueHtml || esc(o.evidence[i].value)) + '</dd></div>';
+      }
+      s += '</dl></div>';
+    }
+    if (o.tool || o.window) {
+      s += '<div class="dq-src">Nguồn: <code>' + esc(o.tool || '—') + '</code>' +
+        (o.window ? ' · khoảng số liệu: <b>' + esc(o.window) + '</b>' : '') + '</div>';
+    }
+    if (o.note) s += '<div class="dq-note">' + esc(o.note) + '</div>';
+    if (o.hoi) s += '<div class="dq-ask">' + esc(o.hoi) + '</div>';
+    return s + '</div>';
+  }
+
+  /**
+   * emptyState — ô "chưa có dữ liệu". TRẠNG THÁI HẠNG NHẤT, không phải thông
+   * báo lỗi. Một trang mà sáu mục đều ghi chưa có dữ liệu là một bản báo cáo
+   * hợp lệ — nên ô này phải trông như một câu trả lời, không như một cái hỏng.
+   * Luôn kèm: khoảng đã hỏi, công cụ đã gọi, và số thô nếu có.
+   */
+  function emptyState(o) {
+    var s = '<div class="nodata" role="note"><div class="nd-icon" aria-hidden="true">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="' + MAU.gray400 + '" stroke-width="1.6" stroke-linecap="round">' +
+      '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 14h8"/></svg></div>';
+    s += '<div class="nd-body"><div class="nd-title">' + esc(o.title || 'Chưa có dữ liệu') + '</div>';
+    if (o.reason) s += '<p class="nd-reason">' + o.reason + '</p>';
+    if (o.raw && o.raw.length) {
+      s += '<ul class="nd-raw">';
+      for (var i = 0; i < o.raw.length; i++) {
+        s += '<li>' + esc(o.raw[i].label) + ': <b class="num"' + (o.raw[i].fig ? ' data-fig="' + esc(o.raw[i].fig) + '"' : '') + '>' +
+          (o.raw[i].valueHtml || esc(o.raw[i].value)) + '</b></li>';
+      }
+      s += '</ul>';
+    }
+    if (o.tool || o.window) {
+      s += '<div class="nd-src">Đã gọi <code>' + esc(o.tool || '—') + '</code>' +
+        (o.window ? ' · khoảng số liệu: <b>' + esc(o.window) + '</b>' : '') + '</div>';
+    }
+    if (o.note) s += '<div class="nd-note">' + esc(o.note) + '</div>';
+    return s + '</div></div>';
+  }
+
+  /* =========================================================================
+   * 11 · HOẠT HOÁ
+   * Trạng thái cuối của mọi hình phải đạt được KHÔNG CẦN hoạt ảnh: máy tắt
+   * chuyển động, WebView không hiểu transform-box, hoặc lệnh in — cả ba đi qua
+   * hienHet(). Thẻ chưa cuộn tới mà in ra là trắng thì đó là lỗi nặng nhất.
+   * ========================================================================= */
+
+  var GIAM_CHUYEN_DONG = (function () {
+    return !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  })();
+
+  /* WebView cũ không có transform-box:fill-box — scaleY(0) khi đó lấy gốc là cả
+   * viewport nên cột bay đi mất. Không đỡ nổi thì thôi không hoạt hoá. */
+  var CO_FILL_BOX = (function () {
+    try { return !!(global.CSS && global.CSS.supports && global.CSS.supports('transform-box', 'fill-box')); }
+    catch (e) { return false; }
+  })();
+
+  function moiPhanTu(root, chon, fn) {
+    var ds = (root || global.document).querySelectorAll(chon);
+    for (var i = 0; i < ds.length; i++) fn(ds[i], i);
+  }
+
+  /** hienHet — đưa mọi hình về trạng thái cuối, không chuyển động. */
+  function hienHet(root) {
+    moiPhanTu(root, '.ths-grow', function (el) { el.style.transition = 'none'; el.style.transform = 'scaleY(1)'; });
+    moiPhanTu(root, '.ths-grow-x', function (el) { el.style.transition = 'none'; el.style.transform = 'scaleX(1)'; });
+    moiPhanTu(root, '.ths-draw', function (el) { el.style.transition = 'none'; el.style.strokeDasharray = 'none'; el.style.strokeDashoffset = '0'; });
+    moiPhanTu(root, '.ths-arc', function (el) {
+      el.style.transition = 'none';
+      el.setAttribute('stroke-dashoffset', el.getAttribute('data-off') || '0');
+      el.setAttribute('stroke-dasharray', (el.getAttribute('data-arc') || '0') + ' ' + (el.getAttribute('data-rest') || '0'));
+    });
+    moiPhanTu(root, '[data-count]', function (el) {
+      el.textContent = soVN(parseFloat(el.getAttribute('data-count')), parseInt(el.getAttribute('data-dec') || '0', 10));
+    });
+  }
+
+  function noiSuy(p) { return 1 - Math.pow(1 - p, 3); }
+
+  /** demLen — đếm số lên. Chỉ dùng cho số lớn (chữ số tỉ lệ), và chỉ khi máy
+   * không yêu cầu giảm chuyển động. */
+  function demLen(el, end, dur, dec) {
+    if (GIAM_CHUYEN_DONG || !global.requestAnimationFrame) { el.textContent = soVN(end, dec || 0); return; }
+    var t0 = null;
+    global.requestAnimationFrame(function buoc(t) {
+      if (!t0) t0 = t;
+      var p = Math.min((t - t0) / (dur || 900), 1);
+      el.textContent = soVN(end * noiSuy(p), dec || 0);
+      if (p < 1) global.requestAnimationFrame(buoc);
+      else el.textContent = soVN(end, dec || 0);
+    });
+  }
+
+  function batMotHinh(svg) {
+    moiPhanTu(svg, '.ths-grow', function (el) { el.style.transform = 'scaleY(1)'; });
+    moiPhanTu(svg, '.ths-grow-x', function (el) { el.style.transform = 'scaleX(1)'; });
+    moiPhanTu(svg, '.ths-draw', function (el) {
+      var len = 0;
+      try { len = el.getTotalLength(); } catch (e) { len = 0; }
+      if (!len) { el.style.strokeDasharray = 'none'; return; }
+      var tre = el.style.transitionDelay || '0s';
+      el.style.strokeDasharray = len;
+      el.style.strokeDashoffset = len;
+      global.requestAnimationFrame(function () {
+        el.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(.2,.7,.2,1) ' + tre;
+        el.style.strokeDashoffset = '0';
+      });
+    });
+    moiPhanTu(svg, '.ths-arc', function (el, i) {
+      el.style.transition = 'stroke-dasharray .9s cubic-bezier(.2,.7,.2,1) ' + round(i * 0.1) + 's';
+      el.setAttribute('stroke-dashoffset', el.getAttribute('data-off') || '0');
+      global.requestAnimationFrame(function () {
+        el.setAttribute('stroke-dasharray', (el.getAttribute('data-arc') || '0') + ' ' + (el.getAttribute('data-rest') || '0'));
+      });
+    });
+    moiPhanTu(svg, '[data-count]', function (el) {
+      demLen(el, parseFloat(el.getAttribute('data-count')), 950, parseInt(el.getAttribute('data-dec') || '0', 10));
+    });
+  }
+
+  /** hoatHoa — nối hoạt ảnh cho mọi biểu đồ trong root khi cuộn tới. */
+  function hoatHoa(root) {
+    var doc = root || global.document;
+    if (GIAM_CHUYEN_DONG || !CO_FILL_BOX || !global.IntersectionObserver) { hienHet(doc); return; }
+    var io = new global.IntersectionObserver(function (es) {
+      for (var i = 0; i < es.length; i++) {
+        if (es[i].isIntersecting) { batMotHinh(es[i].target); io.unobserve(es[i].target); }
+      }
+    }, { threshold: 0.3 });
+    moiPhanTu(doc, '.ths-chart', function (el) { io.observe(el); });
+  }
+
+  /** moBang — mở hết bảng song sinh. Trên giấy bảng phải IN RA, không gập lại;
+   * CSS một mình không mở được <details>, nên phải gọi hàm này trước khi in. */
+  function moBang(root) {
+    moiPhanTu(root, 'details.data-table', function (el) { el.setAttribute('open', 'open'); });
+  }
+
+  /** chuanBiIn — một cửa duy nhất cho bản in: hiện hết, mở hết bảng. */
+  function chuanBiIn(root) {
+    var doc = root || global.document;
+    hienHet(doc);
+    moBang(doc);
+  }
+
+  /* =========================================================================
+   * 12 · XUẤT CSV
+   * BOM là bắt buộc. Không có ﻿ thì Excel trên Windows mở ra chữ Việt lỗi hết.
+   * Tên file do người gọi truyền vào — trong này không có new Date().
+   * ========================================================================= */
+
+  function oCSV(v) {
+    var s = (v === null || v === undefined) ? '' : String(v);
+    return /[",;\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function chuoiCSV(hang) {
+    var out = [], i, j;
+    for (i = 0; i < hang.length; i++) {
+      var d = [];
+      for (j = 0; j < hang[i].length; j++) d.push(oCSV(hang[i][j]));
+      out.push(d.join(','));
+    }
+    return out.join('\r\n');
+  }
+
+  function taiCSV(tenFile, hang) {
+    var noiDung = '﻿' + chuoiCSV(hang);       /* BOM trước mọi thứ */
+    var blob = new global.Blob([noiDung], { type: 'text/csv;charset=utf-8;' });
+    var a = global.document.createElement('a');
+    var url = global.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = tenFile || 'so-lieu.csv';
+    global.document.body.appendChild(a);
+    a.click();
+    global.document.body.removeChild(a);
+    global.setTimeout(function () { global.URL.revokeObjectURL(url); }, 1000);
+  }
+
+  /* =========================================================================
+   * 13 · XUẤT RA NGOÀI
+   * ========================================================================= */
+
+  function veVao(host, markup) {
+    var el = (typeof host === 'string') ? global.document.querySelector(host) : host;
+    if (el) el.innerHTML = markup;
+    return el;
+  }
+
+  global.THSViz = {
+    /* màu */
+    MAU: MAU, CHUOI: CHUOI, THANG: THANG, HAI_CHIEU: HAI_CHIEU, TRANG_THAI: TRANG_THAI,
+    /* hình học (cổng từ svg.ts) */
+    clamp: clamp, range: range, sum: sum, scaleLinear: scaleLinear, polar: polar,
+    arcPath: arcPath, linePath: linePath, smoothPath: smoothPath, areaPath: areaPath,
+    niceMax: niceMax, ticks: ticks, round: round, polygonPoints: polygonPoints,
+    /* thang, trục, nhãn */
+    thangDoc: thangDoc, thangNgang: thangNgang, axisY: axisY, axisX: axisX,
+    catNhan: catNhan, rongChu: rongChu, chuGiai: chuGiai,
+    /* số, chữ, sắp xếp */
+    soVN: soVN, diem: diem, tiLe: tiLe, tiLePhan: tiLePhan, nguyen: nguyen,
+    soSanhVN: soSanhVN, sapTheoTen: sapTheoTen, esc: esc,
+    /* dạng số — gauge khai báo ở dưới, hàm khai báo kiểu này được nâng lên đầu phạm vi */
+    statTile: statTile, kpiRow: kpiRow, heroFigure: heroFigure, meter: meter, gauge: gauge,
+    /* so sánh */
+    bars: bars, barsEmphasis: barsEmphasis, columns: columns, histogram: histogram,
+    dotPlot: dotPlot, dumbbell: dumbbell, bullet: bullet,
+    /* xu hướng */
+    lineChart: lineChart, areaChart: areaChart, sparkline: sparkline,
+    /* phần trên tổng */
+    stackedBar: stackedBar, donut: donut, divergingStacked: divergingStacked,
+    /* lệch và phân bố */
+    divergingBar: divergingBar, heatmap: heatmap,
+    /* nền */
+    bang: bang, boBang: boBang, tableView: tableView, smallMultiples: smallMultiples,
+    banner: banner, emptyState: emptyState, vanDefs: vanDefs,
+    /* vá vào trang */
+    veVao: veVao, hoatHoa: hoatHoa, hienHet: hienHet, demLen: demLen,
+    moBang: moBang, chuanBiIn: chuanBiIn,
+    /* csv */
+    chuoiCSV: chuoiCSV, taiCSV: taiCSV,
+    giamChuyenDong: GIAM_CHUYEN_DONG
+  };
+
+  /**
+   * gauge — đồng hồ cung 270°.
+   * Mẹo pathLength="100": strokeDasharray thành phần trăm viết thẳng, khỏi tính
+   * chu vi bằng tay và khỏi lệch khi đổi bán kính. Cung 270° = 75% chu vi.
+   * Quay riêng NHÓM cung -135°, KHÔNG quay cả <svg>: quay cả svg thì con số ở
+   * giữa cũng nằm nghiêng theo.
+   * Dùng khi một chỉ số cần đọc như mặt đồng hồ; ngoài ra `meter` gọn hơn.
+   */
+  function gauge(o) {
+    var max = (o.max === undefined || o.max === null) ? 100 : o.max;
+    var v = clamp(o.value || 0, 0, max);
+    var frac = max ? v / max : 0;
+    var size = o.size || 210, cx = size / 2, cy = size / 2 + 8;
+    var r = o.r || 78, sw = o.thickness || 16;
+    var mau = o.mau || MAU.brand600;
+    var fmt = o.fmt || function (x) { return tiLePhan(x, (o.dec === undefined) ? 1 : o.dec); };
+    var s = '<g transform="rotate(-135 ' + cx + ' ' + cy + ')">' +
+      '<circle r="' + r + '" cx="' + cx + '" cy="' + cy + '" fill="none" stroke="' + (o.rang || MAU.brand100) +
+      '" stroke-width="' + sw + '" stroke-linecap="round" pathLength="100" stroke-dasharray="75 100"/>' +
+      '<circle class="ths-arc" r="' + r + '" cx="' + cx + '" cy="' + cy + '" fill="none" stroke="' + mau +
+      '" stroke-width="' + sw + '" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"' +
+      ' data-arc="' + round(75 * frac) + '" data-rest="100"/></g>';
+
+    /* Số của đồng hồ: KHÔNG class="num" — số lớn đứng một mình dùng chữ số tỉ lệ. */
+    s += '<text x="' + cx + '" y="' + (cy + 2) + '" text-anchor="middle" font-size="30" font-weight="800" fill="' +
+      MAU.soTrenDau + '">' + esc(fmt(v)) + '</text>';
+    if (o.centerLabel) {
+      s += '<text x="' + cx + '" y="' + (cy + 24) + '" text-anchor="middle" font-size="12" fill="' + MAU.mucNhat + '">' +
+        esc(o.centerLabel) + '</text>';
+    }
+    /* Hai đầu cung, đặt đúng chỗ cung bắt đầu và kết thúc. */
+    s += '<text x="' + round(cx - r * 0.72) + '" y="' + round(cy + r * 0.78) + '" text-anchor="middle" font-size="11" fill="' +
+      MAU.nhanTruc + '">' + esc(fmt(0)) + '</text>';
+    s += '<text x="' + round(cx + r * 0.72) + '" y="' + round(cy + r * 0.78) + '" text-anchor="middle" font-size="11" fill="' +
+      MAU.nhanTruc + '">' + esc(fmt(max)) + '</text>';
+
+    return kemBang(khungSvg(o, size, size, s, 'ths-gauge', o.maxWidth || 240), o, {
+      cols: [{ key: 'label', label: 'Chỉ số' }, { key: 'value', label: 'Giá trị', num: true }, { key: 'max', label: 'Mốc tối đa', num: true }],
+      rows: [{ label: o.title || o.ariaLabel || 'Chỉ số', value: fmt(v), max: fmt(max) }]
+    });
+  }
+})(typeof window !== 'undefined' ? window : this);
+
+/* ============================================================================
+ * PHẦN 2 · Trang catalogue — một lần đọc thật cho mỗi hàm của kho hình.
+ * Mọi số lấy từ khối đồng hành ở trên, để trang này cũng chạy đúng một đường
+ * dữ liệu như bản báo cáo thật.
+ * ========================================================================== */
+(function () {
+  "use strict";
+
+  var V = window.THSViz;
+  var SC = JSON.parse(document.getElementById('thsSidecar').textContent);
+  var SL = SC.soLieu;
+  var giam = V.giamChuyenDong;
+
+  function gt(id) { return (SL[id] || {}).giaTri; }
+  function hien(id) { return (SL[id] || {}).hienThi === undefined ? '—' : SL[id].hienThi; }
+  function pc(v) { return V.tiLePhan(v, 1); }
+
+  /* Vân in — chèn đúng một lần cho cả trang. */
+  document.body.insertAdjacentHTML('afterbegin', V.vanDefs());
+
+  var IC = {
+    nop: '<svg viewBox="0 0 24 24" stroke="' + V.MAU.luc600 + '"><path d="M20 6 9 17l-5-5"/></svg>',
+    nguoi: '<svg viewBox="0 0 24 24" stroke="' + V.MAU.brand600 + '"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1.2-3 3.6-4.5 6.5-4.5s5.3 1.5 6.5 4.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 15.7c2.6.2 4.6 1.6 5.5 4.3"/></svg>',
+    de: '<svg viewBox="0 0 24 24" stroke="' + V.MAU.brand600 + '"><path d="M7 3h10a2 2 0 0 1 2 2v16l-7-3-7 3V5a2 2 0 0 1 2-2z"/></svg>',
+    canh: '<svg viewBox="0 0 24 24" stroke="' + V.MAU.cam600 + '"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>'
+  };
+
+  /* ---------------------------- Dạng số ---------------------------- */
+
+  V.veVao('#catKpiRow', V.kpiRow({
+    tiles: [
+      { label: 'sĩ số lớp bộ môn', value: '22', unit: ' em', icon: IC.nguoi, iconBg: V.MAU.brand50,
+        spark: { values: [22, 22, 22, 22, 22], mau: V.MAU.gray400, ariaLabel: 'Sĩ số không đổi' },
+        delta: { text: 'công cụ này không có lọc ngày', huong: 'trung' },
+        note: 'Đếm các dòng <code>role="student"</code>.' },
+      { label: 'đã nộp nhiệm vụ', value: '1', unit: '/22 em', icon: IC.nop, iconBg: V.MAU.luc50,
+        spark: { values: [0, 0, 1, 1, 1], mau: V.MAU.luc500, ariaLabel: 'Số em đã nộp qua năm tuần' },
+        delta: { text: 'kỳ trước chưa có dữ liệu', huong: 'trung' },
+        note: 'Tỉ lệ 4,5% · tự tính từ hai lần đọc' },
+      { label: 'phòng thi đã có điểm', value: '27', unit: '/30 phòng', icon: IC.de, iconBg: V.MAU.brand50,
+        spark: { values: [18, 21, 24, 26, 27], mau: V.MAU.brand600, ariaLabel: 'Số phòng đã có điểm qua năm tuần' },
+        delta: { text: '+2 phòng so với tuần trước · tự tính từ hai lần đọc', huong: 'tot' },
+        note: 'Còn 3 phòng chưa chấm, đã loại khỏi mọi phép trung bình' },
+      { label: 'trung bình các phòng đã chấm', value: '41,3%', icon: IC.canh, iconBg: V.MAU.cam50,
+        spark: { values: [33.1, 36.4, 35.0, 39.8, 41.3], mau: V.MAU.cam600, ariaLabel: 'Trung bình theo tuần' },
+        delta: { text: '+1,5 điểm % so với tuần trước · tự tính từ hai lần đọc', huong: 'tot' },
+        note: 'Ngưỡng đạt là thiết lập của từng phòng thi.' }
+    ]
+  }));
+
+  V.veVao('#catStatTile', '<div class="kpis" style="grid-template-columns:minmax(0,1fr);margin:0">' +
+    V.statTile({
+      label: 'đã nộp nhiệm vụ', unit: '/22 em', icon: IC.nop, iconBg: V.MAU.luc50,
+      valueHtml: '<span data-fig="cat-kpi">' + hien('cat-kpi') + '</span>',
+      spark: { values: [0, 0, 1, 1, 1], mau: V.MAU.luc500, ariaLabel: 'Số em đã nộp qua năm tuần' },
+      delta: { text: 'kỳ trước chưa có dữ liệu', huong: 'trung' },
+      note: 'Nhiệm vụ “nhiệm vụ bộ đề 2”, hạn 28/08.'
+    }) + '</div>');
+
+  V.veVao('#catHero', V.heroFigure({
+    value: '21', unit: ' em', label: 'đã mở nhiệm vụ mà chưa nộp, tính đến 07/09',
+    note: 'Đúng một số lớn mỗi trang. Dùng cái này thì bỏ nó ở mọi mục khác.'
+  }));
+
+  V.veVao('#catMeter', V.meter({
+    value: gt('cat-tile'), max: 100, label: 'Tỉ lệ nộp nhiệm vụ', w: 480, fmt: pc,
+    ariaLabel: 'Thanh mức: tỉ lệ nộp 4,5% trên thang 0 đến 100%'
+  }) + '<div class="readout"><span>tỉ lệ nộp <b data-fig="cat-tile">' + hien('cat-tile') + '</b></span>' +
+    '<span>rãnh là bước nhạt của cùng dải xanh, không phải xám</span></div>');
+
+  V.veVao('#catGauge', V.gauge({
+    value: gt('cat-tile'), max: 100, centerLabel: 'đã nộp', dec: 1,
+    ariaLabel: 'Đồng hồ cung: tỉ lệ nộp 4,5% trên thang 0 đến 100%'
+  }));
+
+  V.veVao('#catSpark',
+    '<span style="font-size:13px;color:var(--text-secondary)">đi lên</span>' +
+    V.sparkline({ values: [4, 6, 5, 9, 12, 11, 15, 18, 17, 20, 22, 24], mau: V.MAU.brand600, ariaLabel: 'Vệt xu hướng đi lên' }) +
+    '<span style="font-size:13px;color:var(--text-secondary)">đi ngang</span>' +
+    V.sparkline({ values: [12, 12, 13, 12, 12, 13, 12, 12, 13, 12, 12, 12], mau: V.MAU.gray400, ariaLabel: 'Vệt xu hướng đi ngang' }) +
+    '<span style="font-size:13px;color:var(--text-secondary)">đi xuống</span>' +
+    V.sparkline({ values: [24, 22, 23, 19, 18, 16, 15, 13, 12, 9, 7, 5], mau: V.MAU.cam600, ariaLabel: 'Vệt xu hướng đi xuống' }));
+
+  /* ---------------------------- So sánh ---------------------------- */
+
+  var tlBars = gt('cat-bars');
+  V.veVao('#catBars', V.bars({
+    data: [
+      { label: 'Lớp 9A2 Toán', value: tlBars[0], ghi: '48 em trong sổ lớp' },
+      { label: 'Lớp 7A Toán', value: tlBars[1], ghi: '15 em trong sổ lớp' },
+      { label: '6a2 Toán', value: tlBars[2], ghi: '22 em trong sổ lớp' }
+    ],
+    w: 560, max: 100, nameW: 140, fmt: pc,
+    ariaLabel: 'Tỉ lệ nộp nhiệm vụ của ba lớp bộ môn, từ 29,2% xuống 4,5%',
+    colLabel: 'Lớp bộ môn', colValue: 'Tỉ lệ nộp'
+  }));
+
+  var nb = gt('cat-noibat');
+  V.veVao('#catEmph', V.barsEmphasis({
+    data: [
+      { label: 'Lớp 9A2 Toán', value: nb[0] },
+      { label: 'Lớp 7A Toán', value: nb[1] },
+      { label: 'Lớp 8B Toán', value: nb[2] },
+      { label: '6a2 Toán', value: nb[3] }
+    ],
+    emphasis: 3, w: 560, max: 100, nameW: 140, fmt: pc,
+    ariaLabel: 'Làm nổi 6a2 Toán ở mức 4,5% so với ba lớp còn lại',
+    colLabel: 'Lớp bộ môn', colValue: 'Tỉ lệ nộp'
+  }));
+
+  var tenPhong = ['Phòng thi 5', 'Phòng thi 4', 'Phòng thi 3', 'Đạt 100', 'Phòng thi 2', 'Phòng thi theo ca NAT 99'];
+  var nop = gt('cat-cotdoc');
+  var dPhong = [];
+  (function () { for (var i = 0; i < tenPhong.length; i++) dPhong.push({ label: tenPhong[i], value: nop[i] }); })();
+  V.veVao('#catColumns', V.columns({
+    data: dPhong, w: 560, h: 280, unit: 'lượt nộp',
+    ariaLabel: 'Số lượt nộp của sáu phòng thi, từ 22 xuống 3',
+    colLabel: 'Phòng thi', colValue: 'Lượt nộp'
+  }));
+
+  var dl = gt('cat-diem');
+  V.veVao('#catDot', V.dotPlot({
+    data: [
+      { label: 'Lớp 9A2 Toán', value: dl[0] },
+      { label: 'Lớp 8B Toán', value: dl[1] },
+      { label: 'Lớp 7A Toán', value: dl[2] },
+      { label: '6a2 Toán', value: dl[3] }
+    ],
+    w: 560, max: 100, nameW: 140, unit: '%', fmt: pc,
+    ariaLabel: 'Trung bình bốn lớp trên cùng một thang 0 đến 100%',
+    colLabel: 'Lớp bộ môn', colValue: 'Trung bình'
+  }));
+
+  var ts = gt('cat-truocsau');
+  V.veVao('#catDumb', V.dumbbell({
+    data: [
+      { label: '6a2 Toán', truoc: ts[0][0], sau: ts[0][1] },
+      { label: 'Lớp 9A2 Toán', truoc: ts[1][0], sau: ts[1][1] },
+      { label: 'Lớp 7A Toán', truoc: ts[2][0], sau: ts[2][1] }
+    ],
+    w: 560, max: 100, nameW: 140, nhanTruoc: 'Tháng 8', nhanSau: 'Tháng 9', fmt: pc,
+    ariaLabel: 'Trung bình phòng thi tháng 8 so với tháng 9, theo ba lớp',
+    colLabel: 'Lớp bộ môn'
+  }));
+
+  V.veVao('#catBullet', V.bullet({
+    value: gt('cat-muctieu'), target: 50, max: 100, label: 'Trung bình lớp', targetLabel: 'Mốc đối chiếu',
+    w: 480, fmt: pc,
+    ariaLabel: 'Thanh mục tiêu: trung bình lớp 41,3% so với mốc 50%'
+  }) + '<div class="readout"><span>trung bình lớp <b data-fig="cat-muctieu">' + hien('cat-muctieu') + '</b></span>' +
+    '<span>mốc đối chiếu <b>50%</b> — mốc do người yêu cầu cho, không phải mốc của hệ thống</span></div>');
+
+  /* ---------------------------- Xu hướng ---------------------------- */
+
+  var tuan = ['03/08–09/08', '10/08–16/08', '17/08–23/08', '24/08–30/08', '31/08–06/09'];
+  var duong = gt('cat-duong');
+  V.veVao('#catLine', V.lineChart({
+    labels: tuan,
+    series: [{ name: '6a2 Toán', values: duong[0] }, { name: 'Lớp 9A2 Toán', values: duong[1] }],
+    w: 560, h: 290, max: 60, unit: '%', fmt: function (v) { return V.soVN(v, 1); },
+    ariaLabel: 'Trung bình theo tuần của hai lớp, 6a2 Toán từ 33,1% lên 41,3% và Lớp 9A2 Toán từ 48% lên 55,8%',
+    colLabel: 'Tuần'
+  }));
+
+  V.veVao('#catArea', V.areaChart({
+    labels: ['03/08', '10/08', '17/08', '24/08', '31/08'],
+    series: [{ name: 'Lượt nộp bài', values: gt('cat-vung') }],
+    w: 560, h: 290, unit: 'lượt',
+    ariaLabel: 'Lượt nộp bài theo tuần, từ 4 lên 22',
+    colLabel: 'Tuần', colValue: 'Lượt nộp'
+  }));
+
+  /* ------------------------ Phần trên tổng ------------------------ */
+
+  var mucNv = gt('cat-xeplop');
+  var dMuc = [
+    { label: 'Chưa mở', value: mucNv[0] },
+    { label: 'Đã mở, chưa nộp', value: mucNv[1] },
+    { label: 'Đã nộp', value: mucNv[2] }
+  ];
+  V.veVao('#catStack', V.stackedBar({
+    data: dMuc, total: 22, ordinal: true, w: 560, unit: 'em',
+    ariaLabel: 'Trong 22 em: 0 em chưa mở, 21 em đã mở mà chưa nộp, 1 em đã nộp',
+    colLabel: 'Mức', colValue: 'Số em'
+  }));
+
+  V.veVao('#catDonut', V.donut({
+    data: dMuc, total: 22, ordinal: true, centerLabel: 'em', unit: 'em', size: 200,
+    ariaLabel: 'Vành tròn: trong 22 em có 21 em đã mở mà chưa nộp và 1 em đã nộp',
+    colLabel: 'Mức', colValue: 'Số em'
+  }));
+
+  var xl = gt('cat-haichieu-xep');
+  V.veVao('#catDivStack', V.divergingStacked({
+    rows: [
+      { label: '6a2 Toán', values: xl[0] },
+      { label: 'Lớp 7A Toán', values: xl[1] },
+      { label: 'Lớp 9A2 Toán', values: xl[2] }
+    ],
+    cats: [{ label: 'Chưa mở' }, { label: 'Đã mở, chưa nộp' }, { label: 'Đã nộp' }],
+    middle: 1, w: 560, nameW: 130,
+    ariaLabel: 'Ba lớp, căn giữa ở mức đã mở mà chưa nộp',
+    colLabel: 'Lớp bộ môn'
+  }));
+
+  /* ---------------------- Lệch và phân bố ---------------------- */
+
+  var ch = gt('cat-chenh');
+  V.veVao('#catDiv', V.divergingBar({
+    data: [
+      { label: 'Lớp 9A2', value: ch[0] },
+      { label: '6a2', value: ch[1] },
+      { label: 'Lớp 7A', value: ch[2] },
+      { label: 'Lớp 8B', value: ch[3] }
+    ],
+    w: 560, h: 270,
+    ariaLabel: 'Chênh lệch tỉ lệ nộp so với tuần trước, theo bốn lớp',
+    colLabel: 'Lớp', colValue: 'Chênh lệch (điểm %)'
+  }));
+
+  var pd = gt('cat-phodiem');
+  V.veVao('#catHist', V.histogram({
+    data: [
+      { label: 'dưới 5', value: pd[0] },
+      { label: '5–6,5', value: pd[1] },
+      { label: '6,5–8', value: pd[2] },
+      { label: 'trên 8', value: pd[3] }
+    ],
+    w: 560, h: 270, unit: 'em',
+    ariaLabel: 'Phổ điểm: 3 em dưới 5, 7 em từ 5 đến 6,5, 9 em từ 6,5 đến 8, 3 em trên 8'
+  }));
+
+  var luoi = gt('cat-luoi');
+  V.veVao('#catHeat', V.heatmap({
+    cols: ['10/08–16/08', '17/08–23/08', '24/08–30/08', '31/08–06/09'],
+    rows: [
+      { label: '6a2 Toán', values: luoi[0] },
+      { label: 'Lớp 7A Toán', values: luoi[1] },
+      { label: 'Lớp 9A2 Toán', values: luoi[2] }
+    ],
+    cell: 84, nameW: 120, unit: 'lượt nộp', legendTitle: 'Ít lượt nộp → nhiều lượt nộp',
+    ariaLabel: 'Lượt nộp theo ba lớp và bốn tuần, hai ô chưa có dữ liệu',
+    colLabel: 'Lớp bộ môn'
+  }));
+
+  /* ------------------------------ Nền ------------------------------ */
+
+  V.veVao('#catBanner', V.banner({
+    muc: 'chan', tag: 'Số liệu chưa dùng được',
+    title: 'Số liệu điểm danh không khớp — nhờ quản trị Trường học số kiểm tra',
+    body: 'Trong khoảng 31/08–06/09, sổ điểm danh của lớp ghi 0 lượt có mặt và 100% vắng cho ' +
+      '22 trên 22 em. Chưa rõ nguyên nhân: số liệu đọc về không mang thông tin nào về trạng thái ' +
+      'buổi điểm danh, nên trang không đưa ra giải thích nào.',
+    evidence: [
+      { label: 'present (có mặt)', value: '0' },
+      { label: 'absent (vắng)', value: '880' },
+      { label: 'late (muộn)', value: '0' },
+      { label: 'tỉ lệ vắng', value: '100%' },
+      { label: 'số em cùng dạng', value: '22 trên 22' }
+    ],
+    tool: 'sổ điểm danh của lớp', window: '31/08–06/09',
+    note: 'Khi khối này xuất hiện thì trang không in một con số chuyên cần nào ở chỗ khác, và không vẽ biểu đồ chuyên cần.',
+    hoi: 'Phù hợp để nhờ quản trị đối chiếu lại sổ điểm danh của lớp trước khi dùng nhóm số này.'
+  }));
+
+  V.veVao('#catEmpty', V.emptyState({
+    title: 'Trong khoảng 07/09–13/09, phần thầy/cô xem được không thấy tiết nào',
+    reason: 'Mẫu số theo ngày hay theo tiết chỉ được lấy từ thời khoá biểu. Khoảng này trả về 0 tiết, nên trang không ' +
+      'khẳng định số ngày hay số tiết nào, và không tỉ lệ nào dùng nó làm mẫu số.',
+    raw: [{ label: 'count', value: '0' }],
+    tool: 'thời khoá biểu của lớp', window: '07/09–13/09',
+    note: 'Lưu ý khi đọc rộng hơn: có tiết dạy cả thứ Bảy và Chủ nhật, đừng giả định tuần là thứ Hai đến thứ Sáu.'
+  }));
+
+  V.veVao('#catTable', V.tableView({
+    caption: 'Bốn nhiệm vụ trong khoảng 01/08–07/09',
+    cols: [
+      { key: 'ten', label: 'Nhiệm vụ' }, { key: 'han', label: 'Hạn nộp' },
+      { key: 'nop', label: 'Đã nộp', num: true }, { key: 'chua', label: 'Chưa nộp', num: true },
+      { key: 'tt', label: 'Trạng thái' }
+    ],
+    rows: [
+      { ten: 'nhiệm vụ bộ đề 2', han: '28/08', nop: '1', chua: '21', tt: 'quá hạn' },
+      { ten: 'Ôn tập chương 1', han: '05/09', nop: '14', chua: '8', tt: 'còn hạn' },
+      { ten: 'Bài tập về nhà tuần 2', han: '12/09', nop: '0', chua: '22', tt: 'còn hạn' },
+      { ten: 'Phiếu tự đánh giá', han: '—', nop: '3', chua: '19', tt: 'chưa có hạn' }
+    ],
+    note: 'Bốn dòng, không phải cả danh sách nhiệm vụ của lớp — số dòng ở đây là số mẫu.'
+  }) + '<div class="readout"><span>số dòng đang hiện <b data-fig="cat-bang">' + hien('cat-bang') + '</b></span></div>');
+
+  var onho = gt('cat-onho');
+  V.veVao('#catSmall', V.smallMultiples({
+    cols: 2,
+    items: [
+      { title: '6a2 Toán', sub: 'cùng thang 0–60%',
+        svg: V.lineChart({ labels: ['T1', 'T2', 'T3', 'T4', 'T5'], series: [{ name: '6a2 Toán', values: onho[0] }],
+          w: 300, h: 180, max: 60, bang: false, labelPoints: false, ariaLabel: 'Xu hướng 6a2 Toán, thang 0 đến 60%' }) },
+      { title: 'Lớp 9A2 Toán', sub: 'cùng thang 0–60%',
+        svg: V.lineChart({ labels: ['T1', 'T2', 'T3', 'T4', 'T5'], series: [{ name: 'Lớp 9A2 Toán', values: onho[1] }],
+          w: 300, h: 180, max: 60, bang: false, labelPoints: false, ariaLabel: 'Xu hướng Lớp 9A2 Toán, thang 0 đến 60%' }) }
+    ]
+  }));
+
+  /* ------------------- hiện dần, mục lục, in ------------------- */
+
+  (function hienDan() {
+    var els = document.querySelectorAll('.reveal');
+    if (giam || !window.IntersectionObserver) {
+      for (var i = 0; i < els.length; i++) els[i].className += ' in';
+      return;
+    }
+    var io = new IntersectionObserver(function (es) {
+      for (var j = 0; j < es.length; j++) {
+        if (es[j].isIntersecting) { es[j].target.className += ' in'; io.unobserve(es[j].target); }
+      }
+    }, { threshold: 0.12 });
+    for (var k = 0; k < els.length; k++) io.observe(els[k]);
+  })();
+
+  (function mucLuc() {
+    if (!window.IntersectionObserver) return;
+    var links = document.querySelectorAll('.subnav a');
+    var io = new IntersectionObserver(function (es) {
+      for (var i = 0; i < es.length; i++) {
+        if (!es[i].isIntersecting) continue;
+        for (var j = 0; j < links.length; j++) {
+          links[j].className = (links[j].getAttribute('href') === '#' + es[i].target.id) ? 'on' : '';
+        }
+      }
+    }, { rootMargin: '-84px 0px -65% 0px' });
+    var secs = document.querySelectorAll('section[id]');
+    for (var k = 0; k < secs.length; k++) io.observe(secs[k]);
+  })();
+
+  function truocKhiIn() { V.chuanBiIn(document); }
+  if (window.matchMedia) {
+    var mm = window.matchMedia('print');
+    if (mm.addEventListener) mm.addEventListener('change', function (e) { if (e.matches) truocKhiIn(); });
+    else if (mm.addListener) mm.addListener(function (e) { if (e.matches) truocKhiIn(); });
+  }
+  window.addEventListener('beforeprint', truocKhiIn);
+  document.getElementById('btnPrint').addEventListener('click', function () {
+    truocKhiIn();
+    window.print();
+  });
+
+  V.hoatHoa(document);
+})();
+</script>
+</body>
+</html>
